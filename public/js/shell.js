@@ -191,6 +191,17 @@ export function renderControls(container, spec, state, onChange) {
           show();
         });
 
+      } else if (entry.type === 'color') {
+        val.textContent = '';
+        const inp = document.createElement('input');
+        inp.type = 'color'; inp.id = id;
+        inp.value = state[entry.key];
+        inp.addEventListener('input', () => onChange(entry.key, inp.value, entry));
+        wrap.appendChild(inp);
+        refresh.push(() => {
+          if (inp.value !== state[entry.key]) inp.value = state[entry.key];
+        });
+
       } else if (entry.type === 'select') {
         val.textContent = '';
         const sel = document.createElement('select');

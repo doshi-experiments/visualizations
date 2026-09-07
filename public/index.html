@@ -5,10 +5,11 @@
 
   Three exhibits on one sheet, sharing a shell:
 
-    E-03.1  Growth Cage — two balls in a cage, every collision spawns
-            a third. Collision rate goes as N², so dN/dt ∝ N², which
-            blows up in *finite time* rather than merely exponentially.
-            The chart is there to make that difference legible.
+    E-03.1  Growth Cage — balls in a cage, every collision spawns
+            another. Collision rate goes as N², so the obvious
+            prediction is a finite-time blow-up. It measures out below
+            N¹ instead: the balls cool as they multiply, and newborns
+            run out of room. The chart exists to show that break.
 
     E-03.2  Silk — k-fold symmetric drawing. The strands fan apart
             when you move fast and bunch when you move slowly, which
@@ -29,7 +30,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Visualizations — Rishabh Doshi</title>
-<meta name="description" content="Three interactive exhibits: a cage where every collision spawns a new ball and the population blows up in finite time, a k-fold symmetric drawing surface, and 120 double pendulums coming apart.">
+<meta name="description" content="Three interactive exhibits: a cage where every collision spawns a new ball and the growth law is measured rather than assumed, a k-fold symmetric drawing surface, and 120 double pendulums coming apart.">
 <meta name="color-scheme" content="dark light">
 <!-- Theme is stamped on <html> before the first paint. Anything later
      and the light-mode visitor gets a dark flash on every load.
@@ -198,6 +199,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;heigh
 input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent);
   border:0;border-radius:0}
 
+/* a swatch bar rather than the browser's default chip */
+input[type=color]{-webkit-appearance:none;appearance:none;width:100%;height:22px;
+  padding:0;border:1px solid var(--card-edge);background:none;cursor:pointer;
+  border-radius:0}
+input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+input[type=color]::-webkit-color-swatch{border:0;border-radius:0}
+input[type=color]::-moz-color-swatch{border:0;border-radius:0}
+
 select{width:100%;padding:6px 8px;background:var(--paper-0);
   border:1px solid var(--card-edge);font-size:10px;letter-spacing:.06em;
   cursor:pointer;border-radius:0}
@@ -363,13 +372,16 @@ select{width:100%;padding:6px 8px;background:var(--paper-0);
       instead of assuming it, and it comes out below one: energy is shared among more
       and more balls so they slow as they multiply, and a newborn needs somewhere to
       go, which gets harder as the cage fills until it is impossible. Switch the
-      energy setting to injected and the exponent visibly rises. The cage is
-      logistic, not explosive, and watching the N² intuition break is the exhibit.</p>
+      energy setting from injected to conserved and the exponent visibly falls. The
+      cage is logistic, not explosive, and watching the N² intuition break is the
+      exhibit. More balls can be dropped at any point, each handful its own
+      bloodline.</p>
 
       <p style="margin-bottom:18px"><b>E-03.2 · Silk.</b> A drawing surface with
       k-fold rotational symmetry, optionally mirrored. Each stroke is drawn as
       several fine strands that fan apart as the pointer accelerates, which is what
-      reads as silk rather than as a marker.</p>
+      reads as silk rather than as a marker. Colour runs on a gradient you choose,
+      either from a preset or from two colours of your own.</p>
 
       <p style="margin-bottom:18px"><b>E-03.3 · Divergence.</b> A hundred and twenty
       double pendulums, each started a billionth of a radian from the last. They
