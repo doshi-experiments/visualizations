@@ -26,9 +26,13 @@ central difference and regresses `log(rate)` on `log(N)`, so the slope *is* `p` 
 
 | Setting | p |
 |---|---|
-| Energy conserved (default) | ≈ 0.86 |
-| Energy injected | ≈ 1.17 |
+| Energy injected (default) | ≈ 0.7–0.9 |
+| Energy conserved | ≈ 0.86 |
 | Conserved, smaller balls | ≈ 0.63 |
+
+A default run reaches roughly 3,500 balls and 100 generations before the cage
+jams at 80% packing — close enough to the hexagonal limit that the packing is
+visibly crystalline at the edges.
 
 Three brakes, in the order they bite:
 
@@ -45,6 +49,18 @@ Three brakes, in the order they bite:
 
 So the cage is logistic, not explosive. Watching the N² intuition break is the
 exhibit.
+
+Balls can be dropped at any point in a run, not just at the start — each handful
+gets its own hue family, so a later drop reads as a separate bloodline invading a
+settled cage. Adding by hand is taken as an explicit "keep going", so the
+automatic packing stop stands down and only a genuine jam ends the run.
+
+Lineage colour inherits from **one** parent plus a mutation, not the average of
+both. Averaging was the first thing I tried, and it looks wrong past about forty
+generations: blending halves the variance every generation, so a hundred
+generations in, every ball is the same colour and the lineage view stops showing
+lineage. That is the classic objection to blending inheritance, showing up here
+for exactly the same reason.
 
 ## Adding an exhibit
 

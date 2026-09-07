@@ -39,6 +39,19 @@ const LS_KEY = 'sheet-e03-silk';
 const MAX_STROKES = 300;
 const BAKE_TO = 150;
 
+/* Gradient presets, plus 'custom' which reads the two pickers. Stored
+   as hex because that is what <input type=color> speaks; resolved to
+   HSL once per stroke. */
+const GRADIENTS = {
+  blueprint: ['#7fd4ff', '#ffb277'],
+  ultra:     ['#5ce1ff', '#ff5cc8'],
+  sunset:    ['#ffd166', '#ef476f'],
+  aurora:    ['#5ce1ff', '#8fe3ae'],
+  ember:     ['#ff9a3c', '#ff2d55'],
+  iris:      ['#a06bff', '#38f9d7'],
+  custom:    null
+};
+
 const state = {
   brush: 'silk',
   k: 6,
@@ -47,9 +60,13 @@ const state = {
   size: 1,
   strands: 5,
   spread: 1,
-  colorMode: 'drift',
+  colorMode: 'gradient',
   hue: 195,
   hueRate: 0.05,
+  gradient: 'ultra',
+  colA: '#5ce1ff',
+  colB: '#ff5cc8',
+  gradRate: 0.6,
   guides: true,
   autodraw: true
 };
@@ -106,26 +123,62 @@ function withSymmetry(g, k, mirror, fn) {
 /* ═══════════════════════════════════════════════════════════════
    Colour
    ═══════════════════════════════════════════════════════════════ */
-function hueAt(stroke, p) {
+function hexToHsl(hex) {
+  const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex || '');
+  if (!m) return [200, 90, 62];
+  const r = parseInt(m[1], 16) / 255, g = parseInt(m[2], 16) / 255, b = parseInt(m[3], 16) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  const l = (mx + mn) / 2;
+  let h = 0, sat = 0;
+  if (d) {
+    sat = d / (1 - Math.abs(2 * l - 1));
+    h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h *= 60; if (h < 0) h += 360;
+  }
+  return [h, sat * 100, l * 100];
+}
+
+/* Interpolate the short way round the wheel — a plain lerp from 350°
+   to 10° would sweep through every colour in between. */
+function mixHsl(a, b, t) {
+  let dh = ((b[0] - a[0] + 540) % 360) - 180;
+  return [
+    (a[0] + dh * t + 360) % 360,
+    a[1] + (b[1] - a[1]) * t,
+    a[2] + (b[2] - a[2]) * t
+  ];
+}
+
+function colorAt(stroke, p) {
   switch (stroke.colorMode) {
-    case 'fixed': return stroke.hue;
+    case 'gradient': {
+      // Oscillate rather than ramp, so a stroke of any length reads as
+      // a gradient instead of ending wherever it happened to stop.
+      // Cosine, not sine: this has to start at exactly colour A and
+      // sweep to B. Starting mid-sweep means someone who picks green
+      // to pink sees neither green nor pink on a short stroke, only
+      // the muddy middle — which is the one thing they did not choose.
+      const t = 0.5 - 0.5 * Math.cos(p[3] * stroke.gradRate * 0.0016);
+      return mixHsl(stroke.gradA, stroke.gradB, t);
+    }
+    case 'fixed': return [stroke.hue, 92, 63];
     case 'angle': {
       const a = Math.atan2(p[1], p[0]) * 180 / Math.PI;
-      return ((a % 360) + 360) % 360;
+      return [((a % 360) + 360) % 360, 92, 63];
     }
-    case 'speed': return clamp(200 - p[2] * 90, 0, 360);
+    case 'speed': return [clamp(200 - p[2] * 90, 0, 360), 92, 63];
     case 'blueprint': {
       const inks = [197, 27, 145, 6];       // accent, safety, go, redline
-      return inks[Math.floor(p[3] / 900) % inks.length];
+      return [inks[Math.floor(p[3] / 900) % inks.length], 92, 63];
     }
-    default: return (stroke.hue + stroke.hueRate * p[3]) % 360;
+    default: return [(stroke.hue + stroke.hueRate * p[3]) % 360, 92, 63];
   }
 }
 
-function css(hue, alpha, light) {
-  return light
-    ? `hsl(${hue.toFixed(0)} 78% 38% / ${alpha})`
-    : `hsl(${hue.toFixed(0)} 92% 63% / ${alpha})`;
+function css(hsl, alpha, light) {
+  // On paper the same hue has to sit much darker to read as ink.
+  const l = light ? Math.min(hsl[2], 44) : hsl[2];
+  return `hsl(${hsl[0].toFixed(0)} ${hsl[1].toFixed(0)}% ${l.toFixed(0)}% / ${alpha})`;
 }
 
 function blendFor(brush, light) {
@@ -159,10 +212,10 @@ function silkSegment(g, stroke, i, light) {
   const spread = (1 + v * 6) * stroke.spread * stroke.size;
   const width = clamp(2.6 * Math.exp(-v * 0.5), 0.5, 2.6) * stroke.size;
   const alpha = clamp(0.48 * Math.exp(-v * 0.75), 0.05, 0.48);
-  const hue = hueAt(stroke, p1);
+  const col = colorAt(stroke, p1);
 
   g.globalCompositeOperation = blendFor('silk', light);
-  g.strokeStyle = css(hue, alpha, light);
+  g.strokeStyle = css(col, alpha, light);
   g.lineWidth = width;
   g.lineCap = 'round';
   g.beginPath();
@@ -177,10 +230,10 @@ function silkSegment(g, stroke, i, light) {
 function spraySegment(g, stroke, i, light) {
   const p1 = stroke.pts[i];
   const x1 = p1[0] * S, y1 = p1[1] * S;
-  const hue = hueAt(stroke, p1);
+  const col = colorAt(stroke, p1);
   const rad = (3 + p1[2] * 90) * stroke.size;
   g.globalCompositeOperation = blendFor('spray', light);
-  g.fillStyle = css(hue, 0.4, light);
+  g.fillStyle = css(col, 0.4, light);
   const r = stroke.rng;
   for (let n = 0; n < 6; n++) {
     const a = r() * TAU, d = Math.sqrt(r()) * rad;
@@ -193,10 +246,10 @@ function spraySegment(g, stroke, i, light) {
 function chainSegment(g, stroke, i, light) {
   const p1 = stroke.pts[i];
   const x1 = p1[0] * S, y1 = p1[1] * S;
-  const hue = hueAt(stroke, p1);
+  const col = colorAt(stroke, p1);
   const reach = 34 * stroke.size;
   g.globalCompositeOperation = blendFor('chain', light);
-  g.strokeStyle = css(hue, 0.3, light);
+  g.strokeStyle = css(col, 0.3, light);
   g.lineWidth = 0.7 * stroke.size;
   g.beginPath();
   for (let j = Math.max(0, i - 42); j < i; j += 2) {
@@ -228,9 +281,9 @@ function drawOutline(g, stroke, light, done) {
   const o = outlineFor(stroke, done);
   if (o.length < 3) return;
   const mid = stroke.pts[Math.floor(stroke.pts.length / 2)] || stroke.pts[0];
-  const hue = hueAt(stroke, mid);
+  const col = colorAt(stroke, mid);
   g.globalCompositeOperation = blendFor(stroke.brush, light);
-  g.fillStyle = css(hue, stroke.brush === 'ink' ? 0.95 : 0.5, light);
+  g.fillStyle = css(col, stroke.brush === 'ink' ? 0.95 : 0.5, light);
   g.beginPath();
   g.moveTo(o[0][0], o[0][1]);
   for (let i = 1; i < o.length; i++) g.lineTo(o[i][0], o[i][1]);
@@ -321,6 +374,9 @@ function bakeIfNeeded() {
 /* ═══════════════════════════════════════════════════════════════
    Input
    ═══════════════════════════════════════════════════════════════ */
+const currentGradient = () =>
+  GRADIENTS[state.gradient] || [state.colA, state.colB];
+
 function beginStroke(x, y, pressure, hasPressure) {
   redoStack.length = 0;
   const [nx, ny] = toNorm(x, y);
@@ -338,6 +394,9 @@ function beginStroke(x, y, pressure, hasPressure) {
     colorMode: state.colorMode,
     hue: state.colorMode === 'fixed' ? state.hue : (state.hue + Math.random() * 40) % 360,
     hueRate: state.hueRate,
+    gradRate: state.gradRate,
+    gradA: hexToHsl(currentGradient()[0]),
+    gradB: hexToHsl(currentGradient()[1]),
     seed, offsets, rng: mulberry32(seed),
     hasPressure,
     t0: performance.now(),
@@ -404,6 +463,7 @@ function save() {
       s: strokes.slice(-120).map(s => ({
         b: s.brush, k: s.k, m: s.mirror ? 1 : 0, w: s.wedge ? 1 : 0,
         z: s.size, sp: s.spread, c: s.colorMode, h: Math.round(s.hue), r: s.hueRate,
+        gr: s.gradRate, ga: s.gradA, gb: s.gradB,
         e: s.seed, o: s.offsets.map(q), p: s.hasPressure ? 1 : 0,
         pts: s.pts.map(p => [q(p[0]), q(p[1]), q(p[2]), Math.round(p[3]), q(p[4])])
       }))
@@ -426,6 +486,8 @@ function load() {
       brush: s.b, k: s.k, mirror: !!s.m, wedge: !!s.w, size: s.z,
       spread: s.sp == null ? 1 : s.sp,
       colorMode: s.c, hue: s.h, hueRate: s.r, seed: s.e,
+      gradRate: s.gr == null ? 0.6 : s.gr,
+      gradA: s.ga || [200, 90, 62], gradB: s.gb || [320, 90, 62],
       offsets: s.o, hasPressure: !!s.p, rng: mulberry32(s.e), t0: 0,
       pts: s.pts
     }));
@@ -511,6 +573,7 @@ const exhibit = {
 
     { type: 'group', label: 'Colour', children: [
       { type: 'select', key: 'colorMode', label: 'Mode', options: [
+        { value: 'gradient',  label: 'Gradient' },
         { value: 'drift',     label: 'Drift over time' },
         { value: 'fixed',     label: 'Fixed hue' },
         { value: 'angle',     label: 'By angle' },
@@ -521,7 +584,23 @@ const exhibit = {
         when: s => s.colorMode === 'fixed' || s.colorMode === 'drift',
         fmt: v => v + '°' },
       { type: 'range', key: 'hueRate', label: 'Drift rate', min: 0, max: 0.3, step: 0.005,
-        when: s => s.colorMode === 'drift', fmt: v => v.toFixed(3) + '°/ms' }
+        when: s => s.colorMode === 'drift', fmt: v => v.toFixed(3) + '°/ms' },
+      { type: 'select', key: 'gradient', label: 'Gradient',
+        when: s => s.colorMode === 'gradient', options: [
+        { value: 'ultra',     label: 'Ultra — cyan to magenta' },
+        { value: 'blueprint', label: 'Blueprint — cyan to peach' },
+        { value: 'sunset',    label: 'Sunset — gold to rose' },
+        { value: 'aurora',    label: 'Aurora — cyan to green' },
+        { value: 'ember',     label: 'Ember — amber to red' },
+        { value: 'iris',      label: 'Iris — violet to teal' },
+        { value: 'custom',    label: 'Custom — pick both' }
+      ] },
+      { type: 'color', key: 'colA', label: 'From',
+        when: s => s.colorMode === 'gradient' && s.gradient === 'custom' },
+      { type: 'color', key: 'colB', label: 'To',
+        when: s => s.colorMode === 'gradient' && s.gradient === 'custom' },
+      { type: 'range', key: 'gradRate', label: 'Gradient speed', min: 0.05, max: 2, step: 0.05,
+        when: s => s.colorMode === 'gradient', fmt: v => v.toFixed(2) + '×' }
     ] },
 
     { type: 'group', label: 'Sheet', children: [

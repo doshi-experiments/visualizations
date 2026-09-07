@@ -27,7 +27,12 @@ const M = window.Matter;
 const STEP = 1000 / 120;      // ms of sim per physics step — never varies
 const MAX_SUBSTEPS = 8;
 const MAX_SPAWNS_PER_STEP = 8;
-const FAIL_LIMIT = 40;        // consecutive failed placements ⇒ jammed
+/* Consecutive failed placements before the cage is called jammed.
+   This has to be generous: near the packing limit most attempts fail
+   and only the occasional lucky gap succeeds, and stopping at the
+   first run of failures ends the run long before it is actually
+   full. */
+const FAIL_LIMIT = 400;
 
 let stage, trails, sprite;
 let engine, world;
@@ -39,6 +44,7 @@ let cx = 0, cy = 0, R = 0, SL = 0, APO = 0, cageArea = 1;
 
 let rng = mulberry32(1);
 let placed = false, dragging = false, stopped = false;
+let stopSuppressed = false, dropIndex = 0;
 let dropX = 0, dropY = 0, aimX = 0, aimY = 0;
 let pointerX = 0, pointerY = 0, pointerIn = false;
 
@@ -63,18 +69,18 @@ const state = {
   spawn: true,
   spawnEvery: 1,
   refractory: 130,
-  startCount: 2,
-  splitAngle: 6,
+  startCount: 6,
+  splitAngle: 40,
   speed0: 3,
-  radius: 7,
+  radius: 5.5,
   radiusMode: 'fixed',
-  energy: 'conserve',
+  energy: 'inject',
   gravity: 0,
   restitution: 1,
   timeScale: 1,
   colorMode: 'lineage',
   trails: 0.55,
-  stopAt: 0.55,
+  stopAt: 0.8,
   logScale: true,
   sound: false,
   seed: 8412
@@ -181,6 +187,14 @@ function rebuildGrid() {
   }
 }
 
+function gridInsert(b) {
+  if (!grid.cols) return;
+  const gx = clamp((b.position.x / grid.cell) | 0, 0, grid.cols - 1);
+  const gy = clamp((b.position.y / grid.cell) | 0, 0, grid.rows - 1);
+  const i = gy * grid.cols + gx;
+  (grid.buckets[i] || (grid.buckets[i] = [])).push(b);
+}
+
 function overlaps(x, y, r) {
   const gx = clamp((x / grid.cell) | 0, 0, grid.cols - 1);
   const gy = clamp((y / grid.cell) | 0, 0, grid.rows - 1);
@@ -199,6 +213,24 @@ function overlaps(x, y, r) {
     }
   }
   return false;
+}
+
+/* Nearest free spot to (x, y) that fits a ball of radius r, spiralling
+   outward. Needed because balls can now be dropped into a cage that is
+   already crowded, where the exact click point is usually occupied. */
+function freeSpot(x, y, r, jitter) {
+  if (depth(x, y) >= r && !overlaps(x, y, r)) return { x, y };
+  for (let ring = 1; ring <= 18; ring++) {
+    const rad = ring * r * 1.55;
+    const steps = 6 + ring * 3;
+    const off = jitter * 1.7 + rng() * TAU;
+    for (let i = 0; i < steps; i++) {
+      const a = off + i * TAU / steps;
+      const px = x + Math.cos(a) * rad, py = y + Math.sin(a) * rad;
+      if (depth(px, py) >= r && !overlaps(px, py, r)) return { x: px, y: py };
+    }
+  }
+  return null;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -221,6 +253,7 @@ function addBall(x, y, r, vx, vy, hue, gen) {
   M.Body.setVelocity(b, { x: vx, y: vy });
   M.Composite.add(world, b);
   balls.push(b);
+  gridInsert(b);
   if (gen > maxGen) maxGen = gen;
   return b;
 }
@@ -239,13 +272,18 @@ function scaleVelocities(f) {
     M.Body.setVelocity(b, { x: b.velocity.x * f, y: b.velocity.y * f });
 }
 
-/* Circular mean of two hues — a plain average would send 350° and
-   10° to 180°, which is the wrong side of the wheel entirely. */
-function mixHue(h1, h2, jitter) {
-  const a1 = h1 * Math.PI / 180, a2 = h2 * Math.PI / 180;
-  let h = Math.atan2(Math.sin(a1) + Math.sin(a2),
-                     Math.cos(a1) + Math.cos(a2)) * 180 / Math.PI;
-  h += (rng() - 0.5) * jitter;
+/* A newborn takes one parent's hue plus a mutation, rather than the
+   average of both.
+
+   Averaging was the first thing I tried and it looks wrong past about
+   forty generations: blending halves the variance every generation, so
+   a hundred generations in, every ball in the cage is the same colour
+   and the lineage view stops showing lineage at all. That is the
+   classic objection to blending inheritance, and it shows up here for
+   exactly the same reason. Inheriting from one parent makes hue a
+   random walk instead, so variance holds and clans stay visible. */
+function inheritHue(h1, h2, mutation) {
+  const h = (rng() < 0.5 ? h1 : h2) + (rng() - 0.5) * mutation;
   return ((h % 360) + 360) % 360;
 }
 
@@ -308,7 +346,7 @@ function drainSpawns() {
     }
 
     const gen = Math.max(a.viz.gen, b.viz.gen) + 1;
-    const hue = mixHue(a.viz.hue, b.viz.hue, 34);
+    const hue = inheritHue(a.viz.hue, b.viz.hue, 26);
     addBall(spot.x, spot.y, r, vx, vy, hue, gen);
 
     a.viz.lastSpawn = b.viz.lastSpawn = simTime;
@@ -358,6 +396,7 @@ function resetRun(newSeed) {
   collisions = 0; spawnCount = 0; failedSpawns = 0; failedTotal = 0; maxGen = 0;
   peakRate = 0; summary = null;
   placed = false; dragging = false; stopped = false;
+  stopSuppressed = false; dropIndex = 0;
   buildWorld();
   if (trails) trails.clear();
   layout(W, H);
@@ -366,31 +405,45 @@ function resetRun(newSeed) {
 }
 
 function drop(x, y, ax, ay) {
-  let vx = ax - x, vy = ay - y;
+  const vx = ax - x, vy = ay - y;
   const len = Math.hypot(vx, vy);
   const speed = len > 6 ? clamp(len / 26, 0.6, 9) : state.speed0;
-  let ang = len > 6 ? Math.atan2(vy, vx) : rng() * TAU;
+  const ang = len > 6 ? Math.atan2(vy, vx) : rng() * TAU;
 
   const r = state.radius;
   const half = state.splitAngle * Math.PI / 180 / 2;
   const n = Math.max(1, state.startCount | 0);
 
+  // Each handful gets its own hue family, so a second drop reads as a
+  // separate bloodline rather than merging into the first.
+  const baseHue = (dropIndex * 67 + 190) % 360;
+  rebuildGrid();
+
+  let added = 0;
   for (let i = 0; i < n; i++) {
     const spread = n === 1 ? 0 : (i / (n - 1) - 0.5) * 2 * half;
     const a = ang + spread;
-    const off = n === 1 ? 0 : (i - (n - 1) / 2) * (r * 2.3);
-    const px = x + Math.cos(a + Math.PI / 2) * off;
-    const py = y + Math.sin(a + Math.PI / 2) * off;
-    if (depth(px, py) < r) continue;
-    addBall(px, py, r, Math.cos(a) * speed, Math.sin(a) * speed,
-            (i * 360 / Math.max(1, n) + 190) % 360, 0);
+    const off = n === 1 ? 0 : (i - (n - 1) / 2) * (r * 2.4);
+    const spot = freeSpot(x + Math.cos(a + Math.PI / 2) * off,
+                          y + Math.sin(a + Math.PI / 2) * off, r, i);
+    if (!spot) continue;
+    addBall(spot.x, spot.y, r, Math.cos(a) * speed, Math.sin(a) * speed,
+            (baseHue + (i * 26) - n * 13 + 360) % 360, 0);
+    added++;
   }
+
+  if (!added) { announce('No room there — try a clearer part of the cage.'); return; }
+  dropIndex++;
+
+  // Adding by hand is an explicit "keep going", so the automatic
+  // packing stop stands down from here; only a real jam ends the run.
+  if (stopped || placed) { stopped = false; summary = null; stopSuppressed = true; }
+  failedSpawns = 0;
 
   targetKE = totalKE();
   perBallKE = balls.length ? targetKE / balls.length : 0;
-  placed = true;
-  wallStart = performance.now();
-  samples.push({ t: 0, n: balls.length });
+  if (!placed) { placed = true; wallStart = performance.now(); }
+  samples.push({ t: simTime, n: balls.length });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -524,7 +577,8 @@ function hueOf(b) {
    Exhibit
    ═══════════════════════════════════════════════════════════════ */
 const PRESETS = {
-  default:  { cage: 'circle',  spawn: true,  startCount: 2, trails: 0.55, energy: 'conserve', gravity: 0,   radiusMode: 'fixed', colorMode: 'lineage' },
+  default:  { cage: 'circle',  spawn: true,  startCount: 6, splitAngle: 40, radius: 5.5, stopAt: 0.8,  trails: 0.55, energy: 'inject',   gravity: 0,   radiusMode: 'fixed', colorMode: 'lineage' },
+  conserve: { cage: 'circle',  spawn: true,  startCount: 2, splitAngle: 6,  radius: 7,   stopAt: 0.55, trails: 0.55, energy: 'conserve', gravity: 0,   radiusMode: 'fixed', colorMode: 'lineage' },
   caustic:  { cage: 'circle',  spawn: false, startCount: 1, trails: 1,    energy: 'conserve', gravity: 0,   radiusMode: 'fixed', colorMode: 'mono'    },
   ergodic:  { cage: 'stadium', spawn: false, startCount: 1, trails: 1,    energy: 'conserve', gravity: 0,   radiusMode: 'fixed', colorMode: 'mono'    },
   runaway:  { cage: 'circle',  spawn: true,  startCount: 2, trails: 0.4,  energy: 'inject',   gravity: 0,   radiusMode: 'fixed', colorMode: 'speed'   },
@@ -538,12 +592,13 @@ const exhibit = {
   title: 'Growth Cage',
   state,
 
-  hint: 'Click inside the cage to drop the balls — drag to aim and set speed.',
+  hint: 'Click inside the cage to drop balls — drag to aim. Click again any time to add more.',
 
   controls: [
     { type: 'group', label: 'Run', children: [
       { type: 'select', key: 'preset', label: 'Preset', options: [
-        { value: 'default',  label: 'Growth — spawn on collision' },
+        { value: 'default',  label: 'Growth — heated, six balls' },
+        { value: 'conserve', label: 'Growth — energy conserved' },
         { value: 'caustic',  label: 'Caustic — one ball, circle' },
         { value: 'ergodic',  label: 'Ergodic — one ball, stadium' },
         { value: 'runaway',  label: 'Runaway — energy injected' },
@@ -561,7 +616,9 @@ const exhibit = {
         { value: 'square',  label: 'Square' },
         { value: 'hexagon', label: 'Hexagon' }
       ] },
-      { type: 'range', key: 'stopAt', label: 'Stop at packing', min: 0.1, max: 0.85, step: 0.01,
+      // π/√12 ≈ 0.9069 is the hexagonal packing limit; nothing can
+      // exceed it, and random packing jams well before it.
+      { type: 'range', key: 'stopAt', label: 'Stop at packing', min: 0.1, max: 0.9, step: 0.01,
         fmt: v => (v * 100).toFixed(0) + '%' }
     ] },
 
@@ -688,8 +745,11 @@ const exhibit = {
       ['Seed', String(state.seed)]
     ];
     let note = null;
-    if (!placed) note = 'Click inside the cage to begin.';
+    if (!placed) note = 'Click inside the cage to begin. Click again later to add more balls.';
     else if (stopped && summary) note = summary;
+    else if (stopSuppressed)
+      note = 'You added balls by hand, so the packing stop has stood down — ' +
+             'this run now goes until it genuinely jams.';
     return {
       rows, note,
       progress: state.spawn ? clamp(phi / state.stopAt, 0, 1) : null,
@@ -808,7 +868,7 @@ function checkStop() {
   if (stopped || !state.spawn) return;
   const phi = packing();
   const jammed = failedSpawns >= FAIL_LIMIT;
-  if (phi < state.stopAt && !jammed) return;
+  if (!jammed && (stopSuppressed || phi < state.stopAt)) return;
 
   stopped = true;
   const f = fits();
@@ -833,7 +893,10 @@ function checkStop() {
           (state.energy === 'conserve'
             ? ' Energy is conserved here, so the balls also slowed as they multiplied; ' +
               'switch to injected energy and the exponent rises by about 0.3.'
-            : '');
+            : state.energy === 'inject'
+              ? ' Energy is injected here, so the balls never slowed; switch to ' +
+                'conserved and the exponent falls by about 0.3.'
+              : '');
   }
 
   summary =
@@ -946,8 +1009,8 @@ function draw() {
   }
   if (mono) { g.fillStyle = ink('accent'); g.fill(mono); }
 
-  /* ── the drop crosshair ── */
-  if (!placed) drawDropUI(g);
+  /* ── the drop crosshair, live for every drop ── */
+  drawDropUI(g);
 }
 
 function drawDropUI(g) {
@@ -1086,7 +1149,6 @@ function attachPointer(setHint) {
   };
 
   onDown = e => {
-    if (placed) return;
     const p = pos(e);
     if (depth(p.x, p.y) < state.radius) return;
     dragging = true;
@@ -1103,7 +1165,6 @@ function attachPointer(setHint) {
     dragging = false;
     drop(dropX, dropY, aimX, aimY);
     setHintRef && setHintRef('');
-    stage.classList.remove('grab');
   };
   onLeave = () => { pointerIn = false; };
 
