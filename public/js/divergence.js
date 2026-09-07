@@ -22,6 +22,7 @@ import {
   safeRect
 } from './shell.js';
 import { makeTrails } from './trails.js';
+import { rk4, energy } from './pendulum.js';
 
 const DT = 1 / 240;              // seconds per RK4 step — fixed
 const MAX_SUBSTEPS = 12;
@@ -56,65 +57,26 @@ const state = {
 
 const L1 = () => 1;
 const L2 = () => state.armRatio;
-const M1 = () => 1;
-const M2 = () => state.massRatio;
 
-/* ═══════════════════════════════════════════════════════════════
-   Equations of motion
-   ═══════════════════════════════════════════════════════════════ */
-function deriv(s, o) {
-  const t1 = s[0], w1 = s[1], t2 = s[2], w2 = s[3];
-  const m1 = M1(), m2 = M2(), l1 = L1(), l2 = L2(), g = state.gravity;
+/* One params object, mutated in place rather than rebuilt, so the
+   hot path in pendulum.js sees a single stable shape. damp is 0 and
+   stays 0: a pendulum that loses energy converges on the bottom
+   instead of diverging, and there would be nothing left to measure. */
+const P = { l1: 1, l2: 1, m1: 1, m2: 1, g: 9.81, damp: 0 };
 
-  const d = t1 - t2;
-  const sd = Math.sin(d), cd = Math.cos(d);
-  const den = 2 * m1 + m2 - m2 * Math.cos(2 * d);
-
-  o[0] = w1;
-  o[1] = (-g * (2 * m1 + m2) * Math.sin(t1)
-          - m2 * g * Math.sin(t1 - 2 * t2)
-          - 2 * sd * m2 * (w2 * w2 * l2 + w1 * w1 * l1 * cd))
-         / (l1 * den);
-  o[2] = w2;
-  o[3] = (2 * sd * (w1 * w1 * l1 * (m1 + m2)
-          + g * (m1 + m2) * Math.cos(t1)
-          + w2 * w2 * l2 * m2 * cd))
-         / (l2 * den);
+function syncParams() {
+  P.l2 = state.armRatio;
+  P.m2 = state.massRatio;
+  P.g = state.gravity;
 }
 
-const k1 = new Float64Array(4), k2 = new Float64Array(4);
-const k3 = new Float64Array(4), k4 = new Float64Array(4);
-const tmp = new Float64Array(4), cur = new Float64Array(4);
-
-function rk4(arr, base, h) {
-  for (let i = 0; i < 4; i++) cur[i] = arr[base + i];
-
-  deriv(cur, k1);
-  for (let i = 0; i < 4; i++) tmp[i] = cur[i] + k1[i] * h / 2;
-  deriv(tmp, k2);
-  for (let i = 0; i < 4; i++) tmp[i] = cur[i] + k2[i] * h / 2;
-  deriv(tmp, k3);
-  for (let i = 0; i < 4; i++) tmp[i] = cur[i] + k3[i] * h;
-  deriv(tmp, k4);
-
-  for (let i = 0; i < 4; i++)
-    arr[base + i] = cur[i] + (h / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
-}
-
-function energyOf(base) {
-  const t1 = y[base], w1 = y[base + 1], t2 = y[base + 2], w2 = y[base + 3];
-  const m1 = M1(), m2 = M2(), l1 = L1(), l2 = L2(), g = state.gravity;
-  const ke = 0.5 * m1 * l1 * l1 * w1 * w1 +
-             0.5 * m2 * (l1 * l1 * w1 * w1 + l2 * l2 * w2 * w2 +
-                         2 * l1 * l2 * w1 * w2 * Math.cos(t1 - t2));
-  const pe = -(m1 + m2) * g * l1 * Math.cos(t1) - m2 * g * l2 * Math.cos(t2);
-  return ke + pe;
-}
+const energyOf = base => energy(y, base, P);
 
 /* ═══════════════════════════════════════════════════════════════
    Lifecycle
    ═══════════════════════════════════════════════════════════════ */
 function build() {
+  syncParams();
   N = clamp(state.count | 0, 1, 500);
   y = new Float64Array(N * 4);
   prevX = new Float64Array(N);
@@ -266,6 +228,7 @@ const exhibit = {
     if (key === 'count' || key === 'epsExp' ||
         key === 'theta1' || key === 'theta2') build();
     else if (key === 'armRatio' || key === 'massRatio' || key === 'gravity') {
+      syncParams();
       E0 = energyOf(0);
       layout(W, H);
       seedPrev();
@@ -282,7 +245,7 @@ const exhibit = {
       acc += (dt / 1000) * state.timeScale;
       let n = 0;
       while (acc >= DT && n < MAX_SUBSTEPS) {
-        for (let i = 0; i < N; i++) rk4(y, i * 4, DT);
+        for (let i = 0; i < N; i++) rk4(y, i * 4, DT, P);
         simT += DT; acc -= DT; n++;
       }
       if (n === MAX_SUBSTEPS) acc = 0;
