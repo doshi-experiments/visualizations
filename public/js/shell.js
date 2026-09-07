@@ -256,7 +256,7 @@ let syncControls = () => {};
 let running = false;
 let raf = 0, lastTs = 0;
 let telemetryAcc = 0, chartAcc = 0;
-let slowFrames = 0, quality = 2;   // 2 = full, 1 = reduced trails, 0 = minimal
+let slowFrames = 0, recover = 240, quality = 2;   // 2 = full, 1 = reduced trails, 0 = minimal
 
 export const announce = msg => { liveEl.textContent = msg; };
 export function setHint(text) {
@@ -312,6 +312,7 @@ function loop(ts) {
 
   // Degrade rather than stutter, and say so in the title block.
   if (cost > 24) { if (++slowFrames > 30 && quality > 0) { quality--; slowFrames = 0; } }
+  else if (cost < 10 && quality < 2 && --recover < 0) { quality++; recover = 240; }
   else if (slowFrames > 0) slowFrames--;
 
   telemetryAcc += dt;

@@ -21,6 +21,8 @@ import {
   setRunning, isRunning, announce, safeRect
 } from './shell.js';
 import { makeTrails } from './trails.js';
+import { createCageRenderer } from './cage-gl.js';
+import { getQuality } from './shell.js';
 
 const M = window.Matter;
 
@@ -34,7 +36,7 @@ const MAX_SPAWNS_PER_STEP = 8;
    full. */
 const FAIL_LIMIT = 400;
 
-let stage, trails, sprite;
+let stage, trails, sprite, glr;
 let engine, world;
 let balls = [];
 let W = 0, H = 0;
@@ -79,9 +81,19 @@ const state = {
   restitution: 1,
   timeScale: 1,
   colorMode: 'lineage',
-  trails: 0.55,
+  trails: 0.35,
   stopAt: 0.8,
   logScale: true,
+  style: 'metaball',
+  threshold: 0.5,
+  kernel: 1.7,
+  refract: 0.02,
+  metal: 1.0,
+  bloom: 0.7,
+  exposure: 1.1,
+  aberration: 0.5,
+  grain: 0.02,
+  vignette: 0.45,
   sound: false,
   seed: 8412
 };
@@ -89,6 +101,14 @@ const state = {
 /* ═══════════════════════════════════════════════════════════════
    Cage geometry — one interface, four shapes
    ═══════════════════════════════════════════════════════════════ */
+
+/* Device-pixel scale for the GL layer, stepped down by the frame
+   governor before it starts throwing away trails. */
+function glScale() {
+  const q = getQuality();
+  return q >= 2 ? 1 : q === 1 ? 0.75 : 0.55;
+}
+let lastGlScale = 1;
 
 function layout(w, h) {
   const r = safeRect(w, h);
@@ -346,7 +366,7 @@ function drainSpawns() {
     }
 
     const gen = Math.max(a.viz.gen, b.viz.gen) + 1;
-    const hue = inheritHue(a.viz.hue, b.viz.hue, 26);
+    const hue = inheritHue(a.viz.hue, b.viz.hue, 44);
     addBall(spot.x, spot.y, r, vx, vy, hue, gen);
 
     a.viz.lastSpawn = b.viz.lastSpawn = simTime;
@@ -399,6 +419,7 @@ function resetRun(newSeed) {
   stopSuppressed = false; dropIndex = 0;
   buildWorld();
   if (trails) trails.clear();
+  if (glr && glr.ok) glr.clear();
   layout(W, H);
   if (stage) stage.classList.add('grab');
   if (setHintRef) setHintRef(exhibit.hint);
@@ -428,7 +449,7 @@ function drop(x, y, ax, ay) {
                           y + Math.sin(a + Math.PI / 2) * off, r, i);
     if (!spot) continue;
     addBall(spot.x, spot.y, r, Math.cos(a) * speed, Math.sin(a) * speed,
-            (baseHue + (i * 26) - n * 13 + 360) % 360, 0);
+            (baseHue + i * (360 / n)) % 360, 0);
     added++;
   }
 
@@ -658,6 +679,32 @@ const exhibit = {
         fmt: v => v.toFixed(2) + '×' }
     ] },
 
+    { type: 'group', label: 'Look', children: [
+      { type: 'select', key: 'style', label: 'Render', options: [
+        { value: 'metaball', label: 'Molten — merged surface' },
+        { value: 'glow',     label: 'Glow — discrete light' },
+        { value: 'dots',     label: 'Drafting — flat discs' }
+      ] },
+      { type: 'range', key: 'threshold', label: 'Surface level', min: 0.12, max: 0.9, step: 0.01,
+        when: s => s.style === 'metaball', fmt: v => v.toFixed(2) },
+      { type: 'range', key: 'kernel', label: 'Merge radius', min: 1.05, max: 3, step: 0.05,
+        when: s => s.style === 'metaball', fmt: v => v.toFixed(2) + '×' },
+      { type: 'range', key: 'refract', label: 'Refraction', min: 0, max: 0.08, step: 0.002,
+        when: s => s.style === 'metaball', fmt: v => v === 0 ? 'off' : v.toFixed(3) },
+      { type: 'range', key: 'metal', label: 'Specular', min: 0, max: 2, step: 0.05,
+        when: s => s.style === 'metaball', fmt: v => v.toFixed(2) },
+      { type: 'range', key: 'bloom', label: 'Bloom', min: 0, max: 2.5, step: 0.05,
+        when: s => s.style !== 'dots', fmt: v => v === 0 ? 'off' : v.toFixed(2) },
+      { type: 'range', key: 'exposure', label: 'Exposure', min: 0.4, max: 2.5, step: 0.05,
+        when: s => s.style !== 'dots', fmt: v => v.toFixed(2) },
+      { type: 'range', key: 'aberration', label: 'Aberration', min: 0, max: 3, step: 0.05,
+        when: s => s.style !== 'dots', fmt: v => v === 0 ? 'off' : v.toFixed(2) },
+      { type: 'range', key: 'vignette', label: 'Vignette', min: 0, max: 1.2, step: 0.05,
+        when: s => s.style !== 'dots', fmt: v => v === 0 ? 'off' : v.toFixed(2) },
+      { type: 'range', key: 'grain', label: 'Grain', min: 0, max: 0.12, step: 0.005,
+        when: s => s.style !== 'dots', fmt: v => v === 0 ? 'off' : v.toFixed(3) }
+    ] },
+
     { type: 'group', label: 'Drawing', children: [
       { type: 'select', key: 'colorMode', label: 'Colour', options: [
         { value: 'lineage',    label: 'Lineage — hue inherited' },
@@ -676,6 +723,13 @@ const exhibit = {
   init(ctx) {
     stage = ctx.stage;
     trails = makeTrails(stage);
+    // Order matters: 2D trails underneath, GL in the middle, and the
+    // sprite layer on top so the cage outline and crosshair stay crisp
+    // vector work rather than getting bloomed along with everything else.
+    glr = createCageRenderer(stage);
+    // No GPU, or no WebGL2 at all: start on the Canvas path. The GL
+    // styles stay selectable for anyone who wants to try them anyway.
+    if (!glr.ok || glr.software) state.style = 'dots';
     sprite = makeLayer(stage);
     attachPointer(ctx.setHint);
     resetRun(false);
@@ -685,13 +739,20 @@ const exhibit = {
     W = w; H = h;
     layout(w, h);
     trails.fit(w, h, dpr);
+    // The GL scene is soft, glowing imagery where extra device pixels
+    // buy almost nothing, but the post chain is ~10 fullscreen passes
+    // and its cost is entirely pixel-bound. Render it at 1x and leave
+    // the crisp vector work — cage outline, crosshair, labels — on the
+    // 2D sprite layer at full DPR, where sharpness actually shows.
+    if (glr && glr.ok) glr.resize(w, h, glScale());
     sprite.fit(w, h, dpr);
   },
 
   onSet(key) {
     if (key === 'gravity') engine.gravity.scale = state.gravity * 0.0008;
     if (key === 'restitution') for (const b of balls) b.restitution = state.restitution;
-    if (key === 'cage') { layout(W, H); trails.clear(); }
+    if (key === 'cage') { layout(W, H); trails.clear(); if (glr && glr.ok) glr.clear(); }
+    if (key === 'style' && glr && glr.ok) glr.clear();
     if (key === 'preset') {
       Object.assign(state, PRESETS[state.preset]);
       layout(W, H);
@@ -819,7 +880,8 @@ const exhibit = {
     stage.classList.remove('grab');
     detachPointer();
     if (engine) { M.Events.off(engine); M.Engine.clear(engine); }
-    balls = []; engine = null;
+    if (glr && glr.ok) glr.destroy();
+    glr = null; balls = []; engine = null;
   }
 };
 
@@ -934,9 +996,81 @@ function cagePath(g) {
   }
 }
 
+/* Paper and grid ink for the GL background, which is opaque and so has
+   to reproduce the sheet itself rather than sit over it. */
+const GL_PAPER = { dark: [0.031, 0.106, 0.188], light: [0.910, 0.925, 0.941] };
+const GL_INK   = { dark: [0.055, 0.115, 0.180], light: [-0.055, -0.085, -0.110] };
+
+function drawGL(light) {
+  let sum = 0;
+  for (const b of balls) sum += Math.hypot(b.velocity.x, b.velocity.y);
+  const speedRef = Math.max(0.5, (balls.length ? sum / balls.length : 1) * 2.0);
+  glr.upload(balls, hueOf, 197, speedRef);
+  glr.frame({
+    style: state.style,
+    kernel: state.kernel,
+    threshold: state.threshold,
+    soft: 0.10,
+    refract: state.refract,
+    metal: state.metal,
+    light,
+    gridFade: 1,
+    ink: GL_INK[light ? 'light' : 'dark'],
+    paper: GL_PAPER[light ? 'light' : 'dark'],
+    // The trail slider is persistence; the shader wants how much to
+    // forget each frame, so it is the complement, on the same log map.
+    trailDecay: state.trails <= 0.02 ? 1 : trails.fadeFor(state.trails) * 2.2,
+    post: {
+      bloom: state.bloom,
+      exposure: state.exposure,
+      aberration: state.aberration,
+      vignette: state.vignette,
+      grain: state.grain,
+      threshold: light ? 0.85 : 0.62,
+      light,
+      time: performance.now() / 1000
+    }
+  });
+}
+
+function drawCage(g) {
+  g.save();
+  g.strokeStyle = ink('cage');
+  g.lineWidth = 1;
+  cagePath(g);
+  g.stroke();
+
+  // quarter ticks, so the cage reads as a drawn object and not a ring
+  g.globalAlpha = 0.5;
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2;
+    const r0 = (state.cage === 'circle' ? R : APO);
+    g.beginPath();
+    g.moveTo(cx + Math.cos(a) * (r0 - 7), cy + Math.sin(a) * (r0 - 7));
+    g.lineTo(cx + Math.cos(a) * (r0 + 7), cy + Math.sin(a) * (r0 + 7));
+    g.stroke();
+  }
+  g.restore();
+}
+
 function draw() {
   const g = sprite.ctx;
   const light = isLight();
+  const useGL = state.style !== 'dots' && glr && glr.ok;
+
+  if (useGL) {
+    const gs = glScale();
+    if (gs !== lastGlScale) { lastGlScale = gs; glr.resize(W, H, gs); }
+    trails.layer.canvas.style.display = 'none';
+    glr.canvas.style.display = 'block';
+    drawGL(light);
+    g.clearRect(0, 0, W, H);
+    drawCage(g, light);
+    drawDropUI(g);
+    return;
+  }
+  if (glr && glr.ok) glr.canvas.style.display = 'none';
+  trails.layer.canvas.style.display = 'block';
 
   /* ── trails ── */
   const fade = trails.fadeFor(state.trails);
@@ -969,24 +1103,7 @@ function draw() {
 
   /* ── sprites ── */
   g.clearRect(0, 0, W, H);
-
-  g.save();
-  g.strokeStyle = ink('cage');
-  g.lineWidth = 1;
-  cagePath(g);
-  g.stroke();
-
-  // quarter ticks, so the cage reads as a drawn object and not a ring
-  g.globalAlpha = 0.5;
-  for (let i = 0; i < 4; i++) {
-    const a = i * Math.PI / 2;
-    const r0 = (state.cage === 'circle' ? R : APO);
-    g.beginPath();
-    g.moveTo(cx + Math.cos(a) * (r0 - 7), cy + Math.sin(a) * (r0 - 7));
-    g.lineTo(cx + Math.cos(a) * (r0 + 7), cy + Math.sin(a) * (r0 + 7));
-    g.stroke();
-  }
-  g.restore();
+  drawCage(g, light);
 
   /* Bucket by hue so a thousand balls cost 36 fills, not a thousand. */
   const B = 36, paths = new Array(B).fill(null);

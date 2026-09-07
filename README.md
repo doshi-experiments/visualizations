@@ -62,6 +62,42 @@ generations in, every ball is the same colour and the lineage view stops showing
 lineage. That is the classic objection to blending inheritance, showing up here
 for exactly the same reason.
 
+## The GL layer
+
+The Growth Cage renders through WebGL2 by default. Discs read as discs; a
+density field reads as a *material*, so the jamming transition becomes something
+you watch rather than something you infer from the chart.
+
+Per frame: a trail buffer decayed in place and re-splatted, a density field
+accumulated fresh, a resolve pass that thresholds it into a lit surface and
+refracts the drafting grid through it, then bloom, chromatic aberration,
+vignette and grain. Buffers are half-float so highlights can exceed 1.0 —
+without that the bright-pass has nothing to find and everything renders flat.
+
+Three things this got wrong first:
+
+- **One target cannot do both jobs.** The field that decides the silhouette must
+  be wide so neighbours fuse, but a wide field is flat inside a crowd — zero
+  gradient, no normal, no shading. And colour averaged over every ball touching
+  a pixel converges on the mean hue, erasing the lineage. So there are two
+  targets: colour weighted by a sharp kernel (nearest ball wins, hues stay
+  distinct), and the merging field plus a tight per-ball core for normals.
+- **The isosurface has to be normalised to the true ball radius.** Otherwise the
+  threshold and the merge radius fight: widening the kernel pushes the surface
+  inward and balls render at a fraction of their real size — 26%, in the first
+  version — while the physics still treats them as full width.
+- **Bloom on white paper is not bloom on black.** Adding washes to white,
+  subtracting punches dark holes through the brightest things. What a glow looks
+  like on paper is colour bleeding outward, so the light theme bleeds the
+  bloom's hue and leaves its luminance alone.
+
+**WebGL being present is not the same as WebGL being fast.** The post chain is
+about ten fullscreen passes — nothing to a GPU, and 47ms a frame under
+SwiftShader with sixteen balls on screen, where the entire cost is pixels. So
+the renderer is asked what is actually doing the work, and a software rasteriser
+falls back to the Canvas path. The GL styles stay selectable regardless, and the
+frame governor steps the GL resolution down before it starts dropping trails.
+
 ## Adding an exhibit
 
 Write one module in `public/js/` that default-exports the contract documented at
@@ -85,6 +121,8 @@ public/
   js/
     shell.js            registry, router, control kit, the one rAF loop
     trails.js           persistent trail buffer
+    gl.js               WebGL2 core + bloom/aberration/grain post chain
+    cage-gl.js          the cage as a density field
     growth-cage.js      E-03.1
     silk.js             E-03.2
     divergence.js       E-03.3
