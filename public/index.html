@@ -3,7 +3,7 @@
   ═══════════════════════════════════════════════════════════════════
   SHEET E-03 — VISUALIZATIONS
 
-  Three exhibits on one sheet, sharing a shell:
+  Four exhibits on one sheet, sharing a shell:
 
     E-03.1  Growth Cage — balls in a cage, every collision spawns
             another. Collision rate goes as N², so the obvious
@@ -17,6 +17,11 @@
 
     E-03.3  Divergence — 120 double pendulums a billionth of a radian
             apart, staying together, then not.
+
+    E-03.4  Harmonograph — the same pendulums, hung off your cursor
+            and used as a brush. A dragged pivot is a non-inertial
+            frame, so it is your acceleration that swings them, not
+            your speed.
 
   Adding an exhibit is one module in public/js/ plus one line in the
   registry at the bottom of this file. That is the whole content model.
@@ -362,7 +367,7 @@ select{width:100%;padding:6px 8px;background:var(--paper-0);
       <p style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;
                 color:var(--ink-dim)">Sheet E-03 · Visualizations</p>
       <h2 style="font-size:15px;letter-spacing:.14em;text-transform:uppercase;
-                 margin:8px 0 20px">Three exhibits, all of which need JavaScript</h2>
+                 margin:8px 0 20px">Four exhibits, all of which need JavaScript</h2>
 
       <p style="margin-bottom:18px"><b>E-03.1 · Growth Cage.</b> Two balls bounce
       inside a circular cage. Every time two collide, a third appears. The collision
@@ -387,6 +392,16 @@ select{width:100%;padding:6px 8px;background:var(--paper-0);
       double pendulums, each started a billionth of a radian from the last. They
       move as one line, then come apart all at once. The plot fits the Lyapunov
       exponent live, which is the rate at which the prediction stops being possible.</p>
+
+      <p style="margin-bottom:18px"><b>E-03.4 · Harmonograph.</b> The same
+      pendulums, hung off your cursor and used as a brush: you drag the pivot and
+      their lower bobs are the ink, mirrored k ways around the sheet. A pendulum
+      whose pivot is being dragged is not in an inertial frame, so gravity becomes
+      a vector that tilts and stretches as your hand accelerates — which means it
+      is your acceleration that swings them and not your speed. Glide steadily and
+      they barely stir; flick, and they lash. They start a hundred-millionth of a
+      radian apart, so the fan opens as you draw and the width of it is the
+      divergence from the exhibit next door, made into a mark.</p>
 
       <p style="margin-top:28px;color:var(--ink-dim)">
         Sheet A-002, the index, is at

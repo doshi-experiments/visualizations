@@ -12,5 +12,6 @@ import { boot } from './shell.js';
 import growthCage from './growth-cage.js';
 import silk from './silk.js';
 import divergence from './divergence.js';
+import harmonograph from './harmonograph.js';
 
-boot([growthCage, silk, divergence]);
+boot([growthCage, silk, divergence, harmonograph]);

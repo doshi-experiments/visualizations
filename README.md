@@ -1,6 +1,6 @@
 # visualizations
 
-**Sheet E-03** — three interactive exhibits on one drawing sheet, filling the
+**Sheet E-03** — four interactive exhibits on one drawing sheet, filling the
 Visualizations slot that [experiments-landing](https://github.com/doshi-experiments/experiments-landing)
 (Sheet A-002) had reserved and left empty.
 
@@ -13,6 +13,39 @@ Sheet A-002.
 | E-03.1 | Growth Cage | Balls in a cage; every collision spawns another. Measures its own growth exponent. |
 | E-03.2 | Silk | k-fold symmetric drawing surface with a velocity-reactive strand brush. |
 | E-03.3 | Divergence | 120 double pendulums a billionth of a radian apart, and the Lyapunov exponent fitted live. |
+| E-03.4 | Harmonograph | The same pendulums hung off your cursor and used as a brush. |
+
+## The interesting part of E-03.4
+
+Your pointer is the pivot, and you drag it. That is not the fixed-pivot system in
+E-03.3: a pivot being dragged around puts every mass in a non-inertial frame, so
+they all feel a pseudo-force −a and gravity becomes a *vector*,
+
+```
+g_eff = (0, g) − (aₓ, a_y)          screen coords, y down
+```
+
+which tilts and stretches as your hand accelerates. This is not a refinement to
+skip. Leave it out and the bobs are towed along rigidly, arriving wherever your
+hand arrives and never swinging — the brush is dead. Put it in and **acceleration**
+is what excites them, not speed: a steady glide barely stirs the ensemble, a flick
+makes it lash.
+
+It needs no new equations. `deriv()` measures θ from the downward vertical, so a
+general gravity *direction* is only a constant rotation of the angle coordinates:
+per frame, compute `G = |g_eff|` and `φ = atan2(−aₓ, g − a_y)`, integrate
+`(θ₁−φ, ω₁, θ₂−φ, ω₂)` with gravity `G`, and add `φ` back. Angular velocities are
+unchanged by a constant rotation, which makes this exact within a step rather than
+an approximation. `effectiveGravity()` in `pendulum.js`, and it clamps `G ≤ 8g` —
+a flicked pointer produces an enormous acceleration estimate, and a large `G` at a
+fixed `dt` takes the whole ensemble to NaN inside one frame.
+
+The second thing worth knowing: `withSymmetry` rotates about the centre of the
+sheet, so each of the k copies carries its own rotated "down". That is a deliberate
+lie about physics in the service of the image — a kaleidoscope's gravity — and it
+is what lets one ensemble be integrated and then drawn k×2 times. The cost of the
+simulation does not depend on the fold at all, which is the only reason 140
+pendulums at 24-fold is affordable.
 
 ## The interesting part of E-03.1
 
@@ -123,9 +156,13 @@ public/
     trails.js           persistent trail buffer
     gl.js               WebGL2 core + bloom/aberration/grain post chain
     cage-gl.js          the cage as a density field
+    pendulum.js         double-pendulum EOM, RK4, damping, effective gravity
+    silkkit.js          gradients, colour, paper and symmetry, shared by the
+                        two drawing surfaces
     growth-cage.js      E-03.1
     silk.js             E-03.2
     divergence.js       E-03.3
+    harmonograph.js     E-03.4
   vendor/
     matter.min.js       0.20.0
     perfect-freehand.mjs 1.2.2
@@ -142,7 +179,7 @@ asset upload.
 - **perfect-freehand** for Silk's Ribbon and Ink brushes, which turns a pointer
   path into a pressure-variable filled outline instead of a stroked line.
 
-Divergence deliberately uses **neither**. A physics engine's constraint solver is
+Divergence and Harmonograph deliberately use **neither**. A physics engine's constraint solver is
 soft and iterative, and its numerical damping is precisely what would destroy the
 demonstration — damped pendulums converge instead of diverging, and the exponent
 you would measure would be the solver's, not the system's. The equations of motion

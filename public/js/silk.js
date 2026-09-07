@@ -19,6 +19,10 @@
 import {
   ink, makeLayer, mulberry32, clamp, TAU, isLight, announce
 } from './shell.js';
+import {
+  GRADIENTS, GRADIENT_OPTIONS, hexToHsl, mixHsl, css, blendFor,
+  withSymmetry as symmetry, paintPaper
+} from './silkkit.js';
 import { getStroke } from '../vendor/perfect-freehand.mjs';
 
 let stage, paint, live, base;
@@ -38,19 +42,6 @@ let liveDirty = false;
 const LS_KEY = 'sheet-e03-silk';
 const MAX_STROKES = 300;
 const BAKE_TO = 150;
-
-/* Gradient presets, plus 'custom' which reads the two pickers. Stored
-   as hex because that is what <input type=color> speaks; resolved to
-   HSL once per stroke. */
-const GRADIENTS = {
-  blueprint: ['#7fd4ff', '#ffb277'],
-  ultra:     ['#5ce1ff', '#ff5cc8'],
-  sunset:    ['#ffd166', '#ef476f'],
-  aurora:    ['#5ce1ff', '#8fe3ae'],
-  ember:     ['#ff9a3c', '#ff2d55'],
-  iris:      ['#a06bff', '#38f9d7'],
-  custom:    null
-};
 
 const state = {
   brush: 'silk',
@@ -97,58 +88,18 @@ function toNorm(x, y) {
   return [nx, ny];
 }
 
-/* Run fn once per symmetry copy, with the transform already applied.
-   Coordinates handed to fn are in pixels relative to the centre, so
-   line widths stay in pixels and never need un-scaling.
-
-   k and mirror are passed in rather than read from state, because a
-   stroke must always be replayed with the symmetry it was drawn
-   under — otherwise changing the fold would silently rewrite every
-   stroke already on the sheet the next time anything re-rendered. */
-function withSymmetry(g, k, mirror, fn) {
-  k = Math.max(1, k | 0);
-  const copies = mirror ? 2 : 1;
-  for (let i = 0; i < k; i++) {
-    for (let m = 0; m < copies; m++) {
-      g.save();
-      g.translate(CX, CY);
-      g.rotate(i * TAU / k);
-      if (m) g.scale(1, -1);
-      fn(g);
-      g.restore();
-    }
-  }
-}
+/* The symmetry frame. Bound at call time rather than captured,
+   because exportPNG() temporarily moves the centre to the middle of
+   a canvas three times the size. */
+const frame = { cx: 0, cy: 0 };
+const withSymmetry = (g, k, mirror, fn) => {
+  frame.cx = CX; frame.cy = CY;
+  symmetry(g, frame, k, mirror, fn);
+};
 
 /* ═══════════════════════════════════════════════════════════════
    Colour
    ═══════════════════════════════════════════════════════════════ */
-function hexToHsl(hex) {
-  const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex || '');
-  if (!m) return [200, 90, 62];
-  const r = parseInt(m[1], 16) / 255, g = parseInt(m[2], 16) / 255, b = parseInt(m[3], 16) / 255;
-  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
-  const l = (mx + mn) / 2;
-  let h = 0, sat = 0;
-  if (d) {
-    sat = d / (1 - Math.abs(2 * l - 1));
-    h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
-    h *= 60; if (h < 0) h += 360;
-  }
-  return [h, sat * 100, l * 100];
-}
-
-/* Interpolate the short way round the wheel — a plain lerp from 350°
-   to 10° would sweep through every colour in between. */
-function mixHsl(a, b, t) {
-  let dh = ((b[0] - a[0] + 540) % 360) - 180;
-  return [
-    (a[0] + dh * t + 360) % 360,
-    a[1] + (b[1] - a[1]) * t,
-    a[2] + (b[2] - a[2]) * t
-  ];
-}
-
 function colorAt(stroke, p) {
   switch (stroke.colorMode) {
     case 'gradient': {
@@ -173,17 +124,6 @@ function colorAt(stroke, p) {
     }
     default: return [(stroke.hue + stroke.hueRate * p[3]) % 360, 92, 63];
   }
-}
-
-function css(hsl, alpha, light) {
-  // On paper the same hue has to sit much darker to read as ink.
-  const l = light ? Math.min(hsl[2], 44) : hsl[2];
-  return `hsl(${hsl[0].toFixed(0)} ${hsl[1].toFixed(0)}% ${l.toFixed(0)}% / ${alpha})`;
-}
-
-function blendFor(brush, light) {
-  if (brush === 'ink') return 'source-over';
-  return light ? 'multiply' : 'lighter';
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -305,33 +245,6 @@ function renderStroke(g, stroke, light, done = true) {
     else drawOutline(gg, stroke, light, done);
   });
   g.globalCompositeOperation = 'source-over';
-}
-
-/* The paint layer is opaque, and has to be.
-
-   Additive blending needs something to add to. Composite `lighter`
-   onto a transparent canvas and the RGB channels saturate almost at
-   once while alpha only creeps up by the stroke alpha each pass — so
-   a stroke ends up brilliantly coloured and 93% transparent, which
-   is to say invisible. `multiply` against transparent is worse: it
-   is a no-op. Both want real paper underneath, so the layer paints
-   its own — including the drafting grid, which would otherwise be
-   hidden behind an opaque canvas. */
-function paintPaper(g, w, h) {
-  g.fillStyle = ink('paper-0');
-  g.fillRect(0, 0, w, h);
-  g.save();
-  g.strokeStyle = ink('line-1'); g.lineWidth = 1;
-  g.beginPath();
-  for (let x = 0; x < w; x += 28) { g.moveTo(x + .5, 0); g.lineTo(x + .5, h); }
-  for (let yy = 0; yy < h; yy += 28) { g.moveTo(0, yy + .5); g.lineTo(w, yy + .5); }
-  g.stroke();
-  g.strokeStyle = ink('line-2');
-  g.beginPath();
-  for (let x = 0; x < w; x += 140) { g.moveTo(x + .5, 0); g.lineTo(x + .5, h); }
-  for (let yy = 0; yy < h; yy += 140) { g.moveTo(0, yy + .5); g.lineTo(w, yy + .5); }
-  g.stroke();
-  g.restore();
 }
 
 function renderAll() {
@@ -586,15 +499,7 @@ const exhibit = {
       { type: 'range', key: 'hueRate', label: 'Drift rate', min: 0, max: 0.3, step: 0.005,
         when: s => s.colorMode === 'drift', fmt: v => v.toFixed(3) + '°/ms' },
       { type: 'select', key: 'gradient', label: 'Gradient',
-        when: s => s.colorMode === 'gradient', options: [
-        { value: 'ultra',     label: 'Ultra — cyan to magenta' },
-        { value: 'blueprint', label: 'Blueprint — cyan to peach' },
-        { value: 'sunset',    label: 'Sunset — gold to rose' },
-        { value: 'aurora',    label: 'Aurora — cyan to green' },
-        { value: 'ember',     label: 'Ember — amber to red' },
-        { value: 'iris',      label: 'Iris — violet to teal' },
-        { value: 'custom',    label: 'Custom — pick both' }
-      ] },
+        when: s => s.colorMode === 'gradient', options: GRADIENT_OPTIONS },
       { type: 'color', key: 'colA', label: 'From',
         when: s => s.colorMode === 'gradient' && s.gradient === 'custom' },
       { type: 'color', key: 'colB', label: 'To',
