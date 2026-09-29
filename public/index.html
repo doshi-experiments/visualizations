@@ -30,7 +30,7 @@
   hello@rishabhdoshi.com
   ═══════════════════════════════════════════════════════════════════
 -->
-<html lang="en">
+<html lang="en" data-project="visualizations" data-density="comfortable">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -316,8 +316,12 @@ select{width:100%;padding:6px 8px;background:var(--paper-0);
     animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
 </style>
+<link rel="stylesheet" href="/design-system/tokens.css">
+<link rel="stylesheet" href="/design-system/legacy.css">
+<script defer src="/design-system/metadata.js"></script>
 </head>
 <body>
+<a class="ds-skip" href="#panel">Skip to controls</a>
 
 <div class="mark tl"></div><div class="mark tr"></div>
 <div class="mark bl"></div><div class="mark br"></div>
@@ -333,7 +337,7 @@ select{width:100%;padding:6px 8px;background:var(--paper-0);
 
 <main id="stage" role="img" aria-label="Interactive visualization"></main>
 
-<aside id="panel" data-open="true">
+<aside id="panel" tabindex="-1" data-open="true">
   <div class="phead">
     <span>Controls</span>
     <button id="panelToggle" aria-expanded="true" aria-controls="panelBody"
