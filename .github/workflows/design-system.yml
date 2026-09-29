@@ -1,0 +1,18 @@
+name: Design system checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify shared release integrity
+        run: |
+          python3 - <<'PYTHON'
+          import hashlib, json, pathlib
+          root = pathlib.Path("public/design-system")
+          release = json.loads((root / "release.json").read_text())
+          for name, expected in release["files"].items():
+              assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
+          PYTHON

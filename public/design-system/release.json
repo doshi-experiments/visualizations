@@ -1,0 +1,14 @@
+{
+  "package": "@doshi-experiments/design-system",
+  "version": "0.1.0",
+  "files": {
+    "tokens.css": "63e2a8f01180a9f99134b2efbf69c8d2a13cd6de83131b155478016cd8cd0e33",
+    "tokens.js": "21c9481ac926eb1b65a08c6d477821f4e240395d13f0893902f3db180231a849",
+    "tokens.json": "47e74a4b37176d4ac4868e04cc6616952a7e0564077fa354eb2d9844ef82798d",
+    "theme.js": "b0bfdcfbc72524a4c91623ab3d92a51ef47750915d6c4e0affdd6abe9714d559",
+    "legacy.css": "f82bfb6734808b13ba7d6d901ca8d3346dbee2f5ce3c284d9305d4fa365e2798",
+    "metadata.js": "85a8b6cf8fea9a688e74cd6a68b51ae84c51eb265b4e746621e04530bf5ba2a1",
+    "fonts/hanken-grotesk.ttf": "813b3f8fa0965405669a89b38e51bbefd95eef6b8e20d1cb2d8c10cce062662f",
+    "fonts/hanken-grotesk-OFL.txt": "e02ccb89a86839b22feff7872ff5cc355cc0f58318d29eee20e2cf83a612f16d"
+  }
+}
