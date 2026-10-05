@@ -106,8 +106,8 @@ const state = {
 
   colorMode: 'fan',
   gradient: 'ultra',
-  colA: '#5ce1ff',
-  colB: '#ff5cc8',
+  colA: '#1B5D8A',
+  colB: '#A8D7EB',
   size: 1,
   glow: 1,
   persistence: 1,

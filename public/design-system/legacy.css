@@ -3,7 +3,7 @@
   --paper-0:var(--ds-surface-page); --paper-1:var(--ds-surface-raised);
   --paper:var(--ds-surface-page); --card:var(--ds-surface-raised); --card-alt:var(--ds-surface-overlay);
   --ink:var(--ds-text); --ink-dim:var(--ds-text-secondary); --mute:var(--ds-text-secondary);
-  --accent:var(--ds-action-primary); --safety:var(--ds-chart-3); --go:var(--ds-success-text); --redline:var(--ds-error-text);
+  --accent:var(--ds-action-primary); --safety:var(--ds-crane); --go:var(--ds-success-text); --redline:var(--ds-error-text);
   --card-edge:var(--ds-border); --line:var(--ds-border); --rule:var(--ds-border); --tint-edge:var(--ds-border);
   --tint:var(--ds-surface-raised); --hover:var(--ds-selection); --sel-ink:var(--ds-action-text);
   --mono:var(--ds-font-mono); --radius:var(--ds-radius-container); --tap:var(--ds-control-target);
@@ -12,13 +12,10 @@
   --shake:var(--ds-warning-text); --shake-soft:var(--ds-warning-icon); --shake-wash:var(--ds-warning-bg);
   --on-accent:var(--ds-action-text);
 }
-:root[data-project] body {font-family:var(--ds-font-body)}
-:root[data-project] :is(button, input:not([type=checkbox]):not([type=radio]):not([type=range]), select, summary, [role=tab], [role=switch]) {min-height:var(--ds-control-target)}
-:root[data-project] :is(button, [role=switch]) {min-width:var(--ds-control-target)}
+:root[data-project] body {font-family:var(--ds-font-body);font-variation-settings:var(--ds-font-body-variation);line-height:var(--ds-line-body)}
 :root[data-project] :focus-visible {outline:3px solid var(--ds-focus); outline-offset:4px}
 :root[data-project] ::selection {background:var(--ds-selection); color:var(--ds-text)}
 :root[data-project=game] :is(.chip, .stepper__btn, .btn--small) {min-height:60px; min-width:60px}
-:root[data-project] :is(.card, .drawing, .module, .panel) {border-radius:var(--ds-radius-container)}
 @media(prefers-reduced-motion:reduce) {
   :root[data-project] *, :root[data-project] *::before, :root[data-project] *::after {animation:none!important; transition:none!important; scroll-behavior:auto!important}
 }
@@ -26,11 +23,11 @@
 :root[data-project=experiments] .sheet::before, :root[data-project=experiments] .sheet::after {display:none}
 :root[data-project=experiments] .sheet-head {padding:24px; font-family:var(--ds-font-body)}
 :root[data-project=experiments] .sheet-pad {padding:0 24px 24px}
-:root[data-project=experiments] h1 {font-size:clamp(40px,7vw,84px); letter-spacing:-.055em}
+:root[data-project=experiments] h1 {font-size:var(--ds-text-display);font-weight:700;font-variation-settings:var(--ds-font-display-variation);letter-spacing:-.025em}
 :root[data-project=experiments] :is(.lede,.s-blurb,.d-blurb) {font-size:1rem}
 :root[data-project=experiments] .d-name {font-size:1.125rem}
 :root[data-project=experiments] .d-parts a {display:inline-flex; align-items:center; min-height:44px}
-:root[data-project=game] :is(h1,h2,.title,.word) {font-family:var(--ds-font-display)}
+:root[data-project=game] :is(h1,h2,.title,.word) {font-family:var(--ds-font-display);font-variation-settings:var(--ds-font-display-variation)}
 :root[data-project=game] .btn--primary {background:var(--ds-action-primary); color:var(--ds-action-text)}
 :root[data-project=game] .btn--primary:hover:not(:disabled) {background:var(--ds-action-hover)}
 :root[data-project=calculator] .rvb-shell > .flex > a {min-height:44px; display:inline-flex; align-items:center}
