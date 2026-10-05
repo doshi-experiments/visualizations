@@ -101,35 +101,9 @@ export function withSymmetry(g, frame, k, mirror, fn) {
   }
 }
 
-/* Paper, and the drafting grid drawn onto it.
-
-   Both drawing exhibits paint onto an *opaque* layer, and have to.
-   Additive blending needs something to add to. Composite `lighter`
-   onto a transparent canvas and the RGB channels saturate almost at
-   once while alpha only creeps up by the stroke alpha each pass — so
-   a stroke ends up brilliantly coloured and 93% transparent, which
-   is to say invisible. `multiply` against transparent is worse: it
-   is a no-op. Both want real paper underneath, so the layer paints
-   its own — including the drafting grid, which would otherwise be
-   hidden behind an opaque canvas.
-
-   `grid:false` is for the Harmonograph's fade mode, where a wash
-   over the whole sheet would erode the grid unevenly; there it is
-   cleaner to have drawn no grid at all than a half-eaten one. */
-export function paintPaper(g, w, h, { grid = true } = {}) {
+/* Drawing layers stay opaque so additive and multiply blending have
+   a stable shared surface beneath the ink. Backgrounds carry no decoration. */
+export function paintPaper(g, w, h) {
   g.fillStyle = ink('paper-0');
   g.fillRect(0, 0, w, h);
-  if (!grid) return;
-  g.save();
-  g.strokeStyle = ink('line-1'); g.lineWidth = 1;
-  g.beginPath();
-  for (let x = 0; x < w; x += 28) { g.moveTo(x + .5, 0); g.lineTo(x + .5, h); }
-  for (let yy = 0; yy < h; yy += 28) { g.moveTo(0, yy + .5); g.lineTo(w, yy + .5); }
-  g.stroke();
-  g.strokeStyle = ink('line-2');
-  g.beginPath();
-  for (let x = 0; x < w; x += 140) { g.moveTo(x + .5, 0); g.lineTo(x + .5, h); }
-  for (let yy = 0; yy < h; yy += 140) { g.moveTo(0, yy + .5); g.lineTo(w, yy + .5); }
-  g.stroke();
-  g.restore();
 }

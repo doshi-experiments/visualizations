@@ -7,6 +7,7 @@
    chart canvas, the single rAF loop, and the theme.
    ═══════════════════════════════════════════════════════════════ */
 'use strict';
+import {mountSiteHeader} from '../design-system/site.js';
 
 export const $ = s => document.querySelector(s);
 export const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -81,8 +82,17 @@ export function makeLayer(stage, { alpha = true } = {}) {
    narrow one the title block sits above it and the controls below.
    Kept here because every exhibit needs the same answer. */
 export function safeRect(w, h) {
-  if (w > 920) return { x: 332, y: 112, w: w - 332 - 292, h: h - 112 - 64 };
-  return { x: 14, y: 246, w: w - 28, h: h * 0.46 };
+  const top = Math.max(0, document.querySelector('.exhibit-bar')?.getBoundingClientRect().bottom || 140) + 16;
+  const panel = document.querySelector('#panel').getBoundingClientRect();
+  const stats = document.querySelector('#titleblock').getBoundingClientRect();
+  if (w > 920) {
+    const left = panel.right + 24, right = stats.left - 24;
+    return {x:left,y:top,w:Math.max(1,right-left),h:Math.max(1,h-top-64)};
+  }
+  const y = Math.max(top,stats.bottom + 16);
+  const hint = document.querySelector('#hint').getBoundingClientRect();
+  const bottom = Math.min(panel.top - 16, hint.height ? hint.top - 16 : panel.top - 16);
+  return {x:16,y,w:Math.max(1,w-32),h:Math.max(1,bottom-y)};
 }
 
 /* ── number formatting ───────────────────────────────────────── */
@@ -380,7 +390,7 @@ function mount(ex) {
   active = ex;
   quality = 2; slowFrames = 0;
 
-  titleEl.firstChild.nodeValue = ex.title || ex.name;
+  titleEl.textContent = ex.title || ex.name;
   document.title = (ex.title || ex.name) + ' — Visualizations — Rishabh Doshi';
 
   for (const b of tabsEl.children)
@@ -404,7 +414,7 @@ function mount(ex) {
   setHint(ex.hint || '');
   paintTelemetry();
   if (ex.repaint) ex.repaint();
-  announce((ex.code || '') + ' ' + (ex.title || ex.name) + ' loaded.');
+  announce((ex.title || ex.name) + ' loaded.');
 }
 
 function routeFromHash() {
@@ -422,7 +432,7 @@ export function boot(list) {
     b.setAttribute('role', 'tab');
     b.setAttribute('aria-selected', 'false');
     b.dataset.id = ex.id;
-    b.innerHTML = `<span class="code">${ex.code}</span><span class="name">${ex.name}</span>`;
+    b.textContent = ex.name;
     b.addEventListener('click', () => {
       if (active && active.id === ex.id) return;
       location.hash = ex.id;
@@ -430,25 +440,22 @@ export function boot(list) {
     tabsEl.appendChild(b);
   }
 
-  /* theme */
-  const themeBtn = $('#theme');
-  const paintTheme = (t, write) => {
-    document.documentElement.setAttribute('data-theme', t);
-    themeBtn.setAttribute('aria-checked', String(t === 'light'));
+  /* One appearance controller updates CSS and the cached canvas inks. */
+  const site = mountSiteHeader($('#family-header'), {project:'visualizations'});
+  site.controller.subscribe(() => {
     inkCache.clear();
-    if (write) {
-      const bits = 'sheet-theme=' + t + ';path=/;max-age=31536000;samesite=lax';
-      try { document.cookie = bits + ';domain=.rishabhdoshi.com'; } catch (e) {}
-      try { document.cookie = bits; } catch (e) {}
-      try { localStorage.setItem('sheet-theme', t); } catch (e) {}
-    }
-    if (active && active.repaint) active.repaint();
+    if (active?.repaint) active.repaint();
     paintTelemetry();
     if (!chartWrap.hidden) paintChart();
+  });
+  const resizeChrome = () => {
+    document.documentElement.style.setProperty('--viz-header-height', `${$('#family-header').getBoundingClientRect().height}px`);
+    document.documentElement.style.setProperty('--viz-panel-top', `${$('.exhibit-bar').getBoundingClientRect().bottom + 12}px`);
+    doResize();
   };
-  paintTheme(document.documentElement.getAttribute('data-theme'), false);
-  themeBtn.addEventListener('click', () =>
-    paintTheme(isLight() ? 'dark' : 'light', true));
+  const chromeObserver = new ResizeObserver(resizeChrome);
+  chromeObserver.observe($('#family-header')); chromeObserver.observe($('.exhibit-bar'));
+  resizeChrome();
 
   /* panel collapse */
   const panel = $('#panel'), pt = $('#panelToggle');
@@ -456,6 +463,7 @@ export function boot(list) {
     panel.dataset.open = String(open);
     pt.setAttribute('aria-expanded', String(open));
     pt.textContent = open ? 'Hide' : 'Show';
+    doResize();
   };
   pt.addEventListener('click', () => setPanel(panel.dataset.open !== 'true'));
   // On a phone the drawer would cover the exhibit it controls, so it
@@ -479,7 +487,11 @@ export function boot(list) {
   });
 
   /* sizing + visibility */
-  new ResizeObserver(doResize).observe(stage);
+  const drawingObserver = new ResizeObserver(doResize);
+  drawingObserver.observe(stage);
+  drawingObserver.observe(panel);
+  drawingObserver.observe($('#titleblock'));
+  drawingObserver.observe($('#hint'));
   addEventListener('orientationchange', () => setTimeout(doResize, 120));
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }

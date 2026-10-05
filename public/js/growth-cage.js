@@ -711,7 +711,7 @@ const exhibit = {
         { value: 'generation', label: 'Generation' },
         { value: 'speed',      label: 'Speed' },
         { value: 'age',        label: 'Age' },
-        { value: 'mono',       label: 'Blueprint' }
+        { value: 'mono',       label: 'Single color' }
       ] },
       { type: 'range', key: 'trails', label: 'Trail persistence', min: 0, max: 1, step: 0.01,
         fmt: v => v < 0.02 ? 'off' : v > 0.99 ? 'forever' : (v * 100).toFixed(0) + '%' },
@@ -996,10 +996,21 @@ function cagePath(g) {
   }
 }
 
-/* Paper and grid ink for the GL background, which is opaque and so has
-   to reproduce the sheet itself rather than sit over it. */
-const GL_PAPER = { dark: [0.031, 0.106, 0.188], light: [0.910, 0.925, 0.941] };
-const GL_INK   = { dark: [0.055, 0.115, 0.180], light: [-0.055, -0.085, -0.110] };
+/* WebGL uses the same solid surface as the CSS and 2D canvases.
+   Sample CSS colors once per value so changing a shared token also reaches GL. */
+const paperSamples = new Map();
+const paperPixel = document.createElement('canvas');
+paperPixel.width = paperPixel.height = 1;
+const paperContext = paperPixel.getContext('2d', {willReadFrequently: true});
+function paperRGB() {
+  const color = ink('paper-0');
+  if (!paperSamples.has(color)) {
+    paperContext.fillStyle = color;
+    paperContext.fillRect(0, 0, 1, 1);
+    paperSamples.set(color, [...paperContext.getImageData(0, 0, 1, 1).data].slice(0, 3).map(value => value / 255));
+  }
+  return paperSamples.get(color);
+}
 
 function drawGL(light) {
   let sum = 0;
@@ -1014,9 +1025,9 @@ function drawGL(light) {
     refract: state.refract,
     metal: state.metal,
     light,
-    gridFade: 1,
-    ink: GL_INK[light ? 'light' : 'dark'],
-    paper: GL_PAPER[light ? 'light' : 'dark'],
+    gridFade: 0,
+    ink: [0, 0, 0],
+    paper: paperRGB(),
     // The trail slider is persistence; the shader wants how much to
     // forget each frame, so it is the complement, on the same log map.
     trailDecay: state.trails <= 0.02 ? 1 : trails.fadeFor(state.trails) * 2.2,
@@ -1144,7 +1155,7 @@ function drawDropUI(g) {
   g.moveTo(x, y - 11); g.lineTo(x, y + 11);
   g.stroke();
   g.globalAlpha = 0.75;
-  g.font = '9px ui-monospace,monospace';
+  g.font = '9px Commissioner,sans-serif';
   g.fillText(`${(x - cx).toFixed(0)}, ${(y - cy).toFixed(0)}`, x + 14, y - 6);
   g.globalAlpha = 1;
 
@@ -1173,7 +1184,7 @@ function chart(g, w, h) {
   g.strokeRect(pad.l + .5, pad.t + .5, iw, ih);
 
   if (samples.length < 2) {
-    g.fillStyle = dim; g.font = '9px ui-monospace,monospace';
+    g.fillStyle = dim; g.font = '9px Commissioner,sans-serif';
     g.fillText('waiting for a run', pad.l + 6, pad.t + 16);
     g.restore(); return;
   }
@@ -1192,7 +1203,7 @@ function chart(g, w, h) {
 
   // gridlines: decades on a log axis, quarters otherwise
   g.strokeStyle = line; g.globalAlpha = 0.6;
-  g.font = '8px ui-monospace,monospace'; g.fillStyle = dim;
+  g.font = '8px Commissioner,sans-serif'; g.fillStyle = dim;
   if (log) {
     for (let d = 0; Math.pow(10, d) <= nMax * 1.4; d++) {
       const y = Y(Math.pow(10, d));
@@ -1248,7 +1259,7 @@ function chart(g, w, h) {
   samples.forEach((s, i) => i ? g.lineTo(X(s.t), Y(s.n)) : g.moveTo(X(s.t), Y(s.n)));
   g.stroke();
 
-  g.fillStyle = dim; g.font = '8px ui-monospace,monospace';
+  g.fillStyle = dim; g.font = '8px Commissioner,sans-serif';
   g.fillText((tMax / 1000).toFixed(0) + 's', pad.l + iw - 16, h - 3);
   g.restore();
 }

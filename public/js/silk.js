@@ -55,8 +55,8 @@ const state = {
   hue: 195,
   hueRate: 0.05,
   gradient: 'ultra',
-  colA: '#5ce1ff',
-  colB: '#ff5cc8',
+  colA: '#1B5D8A',
+  colB: '#A8D7EB',
   gradRate: 0.6,
   guides: true,
   autodraw: true
