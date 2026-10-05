@@ -1,51 +1,51 @@
-// Single source for CSS, JS charts, and non-JavaScript theme adapters.
+// Single source for the shared identity, CSS, charts and non-JavaScript adapters.
 export const foundation = {
-  'font-body': '"Hanken Grotesk", ui-sans-serif, system-ui, sans-serif',
-  'font-display': '"Hanken Grotesk", ui-sans-serif, system-ui, sans-serif',
-  'font-mono': 'ui-monospace, SFMono-Regular, Consolas, monospace',
+  'font-body': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
+  'font-display': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
+  'font-mono': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
+  'font-body-variation': '"FLAR" 0, "VOLM" 0, "slnt" 0',
+  'font-display-variation': '"FLAR" 22, "VOLM" 0, "slnt" 0',
+  'line-body': '1.55', 'measure': '64ch',
   'text-caption': '0.875rem', 'text-body': '1rem', 'text-card': '1.25rem',
-  'text-section': '1.5rem', 'text-title': '2.25rem', 'text-display': 'clamp(3rem, 8vw, 7rem)',
+  'text-section': '1.5625rem', 'text-title': '1.9375rem', 'text-large': '2.4375rem',
+  'text-hero': '3.0625rem', 'text-display': 'clamp(2.4375rem, 5vw, 3.8125rem)',
   'space-1': '4px', 'space-2': '8px', 'space-3': '12px', 'space-4': '16px',
   'space-6': '24px', 'space-8': '32px', 'space-12': '48px',
-  'radius-control': '12px', 'radius-container': '24px',
-  'duration-fast': '160ms', 'duration-base': '320ms', 'duration-slow': '640ms',
+  'radius-control': '8px', 'radius-container': '16px', 'radius-dialog': '20px',
+  'duration-fast': '120ms', 'duration-base': '240ms', 'duration-slow': '480ms',
   'ease': 'cubic-bezier(.2,.75,.25,1)', 'page-width': '1240px',
-  'shadow-raised': '0 8px 28px #00000012', 'shadow-overlay': '0 20px 64px #00000030',
+  'shadow-raised': 'none', 'shadow-overlay': '0 20px 64px #17323D30',
+  'crane': '#E7BD45',
 };
 export const appearances = {
   light: {
-    'text': '#202332', 'text-secondary': '#50576b', 'text-disabled': '#62697a', 'text-inverse': '#ffffff',
-    'surface-page': '#f6f7fb', 'surface-raised': '#ffffff', 'surface-overlay': '#ffffff',
-    'border': '#7d8495', 'selection': '#e2deff',
-    'success-bg': '#e0f5e9', 'success-text': '#145c38', 'success-icon': '#145c38',
-    'warning-bg': '#fff1d4', 'warning-text': '#714500', 'warning-icon': '#714500',
-    'error-bg': '#ffe5eb', 'error-text': '#9b1939', 'error-icon': '#9b1939',
-    'info-bg': '#e2eeff', 'info-text': '#194b8a', 'info-icon': '#194b8a',
-    'chart-1': '#643ac9', 'chart-2': '#087e8b', 'chart-3': '#b34b12', 'chart-4': '#bb2766',
-    'ramp-1': '#eee9ff', 'ramp-2': '#c9b9ff', 'ramp-3': '#9974ee', 'ramp-4': '#643ac9', 'ramp-5': '#38206f',
+    'text': '#17323D', 'text-secondary': '#49626D', 'text-disabled': '#5A717B', 'text-inverse': '#FFFFFF',
+    'surface-page': '#F1F5F7', 'surface-raised': '#FFFFFF', 'surface-overlay': '#FFFFFF',
+    'border': '#758892', 'selection': '#D3EAF4',
+    'success-bg': '#E0F2E9', 'success-text': '#185940', 'success-icon': '#185940',
+    'warning-bg': '#FFF3CE', 'warning-text': '#6B5000', 'warning-icon': '#6B5000',
+    'error-bg': '#FCE7E7', 'error-text': '#982F38', 'error-icon': '#982F38',
+    'info-bg': '#DFEEF6', 'info-text': '#1B5D8A', 'info-icon': '#1B5D8A',
+    'chart-1': '#1B5D8A', 'chart-2': '#2A7C77', 'chart-3': '#B15A2B', 'chart-4': '#617A86',
+    'ramp-1': '#DFEEF6', 'ramp-2': '#A8D7EB', 'ramp-3': '#6DA9CA', 'ramp-4': '#1B5D8A', 'ramp-5': '#17323D',
   },
   dark: {
-    'text': '#f3f4fa', 'text-secondary': '#b8c0d4', 'text-disabled': '#9da6ba', 'text-inverse': '#171925',
-    'surface-page': '#131521', 'surface-raised': '#202433', 'surface-overlay': '#292e40',
-    'border': '#7b849d', 'selection': '#41355f',
-    'success-bg': '#183e2d', 'success-text': '#99e9b6', 'success-icon': '#99e9b6',
-    'warning-bg': '#44361b', 'warning-text': '#ffdc90', 'warning-icon': '#ffdc90',
-    'error-bg': '#481f31', 'error-text': '#ffb1c5', 'error-icon': '#ffb1c5',
-    'info-bg': '#203957', 'info-text': '#accfff', 'info-icon': '#accfff',
-    'chart-1': '#bd9fff', 'chart-2': '#60d5df', 'chart-3': '#ffb680', 'chart-4': '#ff93c3',
-    'ramp-1': '#38206f', 'ramp-2': '#643ac9', 'ramp-3': '#9974ee', 'ramp-4': '#c9b9ff', 'ramp-5': '#eee9ff',
+    'text': '#F1F5F7', 'text-secondary': '#C0D1D8', 'text-disabled': '#A7BDC6', 'text-inverse': '#17323D',
+    'surface-page': '#17323D', 'surface-raised': '#23414C', 'surface-overlay': '#2B4A55',
+    'border': '#82A2AD', 'selection': '#345D70',
+    'success-bg': '#224D3F', 'success-text': '#A9E0C6', 'success-icon': '#A9E0C6',
+    'warning-bg': '#4A4021', 'warning-text': '#F3D78A', 'warning-icon': '#F3D78A',
+    'error-bg': '#542F38', 'error-text': '#F3B6BC', 'error-icon': '#F3B6BC',
+    'info-bg': '#2A4E65', 'info-text': '#A8D7EB', 'info-icon': '#A8D7EB',
+    'chart-1': '#A8D7EB', 'chart-2': '#81C9BD', 'chart-3': '#F0B17B', 'chart-4': '#BDCDD4',
+    'ramp-1': '#23414C', 'ramp-2': '#1B5D8A', 'ramp-3': '#6DA9CA', 'ramp-4': '#A8D7EB', 'ramp-5': '#DFEEF6',
   },
 };
-// Colors are provisional identities; status colors never derive from branding.
-export const projects = {
-  portfolio: {light: '#6536c5', dark: '#c4a7ff', radius: '24px'},
-  experiments: {light: '#a52b72', dark: '#fface0', radius: '28px'},
-  visualizations: {light: '#076d83', dark: '#70d5eb', radius: '16px'},
-  calculator: {light: '#116b55', dark: '#7ee2bf', radius: '20px'},
-  game: {light: '#b92e4a', dark: '#ffa4b6', radius: '32px'},
-  finance: {light: '#4e46b8', dark: '#b9b2ff', radius: '16px'},
-  household: {light: '#6551b8', dark: '#c3b6ff', radius: '24px'},
-};
+// One recognizable identity. Project IDs remain compatible with existing apps.
+export const projects = Object.fromEntries(
+  ['portfolio', 'experiments', 'visualizations', 'calculator', 'game', 'finance', 'household']
+    .map(project => [project, {light: '#1B5D8A', dark: '#A8D7EB', radius: '16px'}]),
+);
 export const densities = {
   comfortable: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '12px', 'panel-padding': '24px'},
   compact: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '4px', 'panel-padding': '16px'},
@@ -60,6 +60,5 @@ export function resolveTokens({project = 'finance', appearance = 'light', densit
   return {...foundation, ...appearances[appearance], ...densities[density],
     'action-primary': brand, 'action-hover': shade(brand, .12, appearance === 'dark'), 'action-pressed': shade(brand, .22, appearance === 'dark'),
     'action-text': appearances[appearance]['text-inverse'], 'focus': brand,
-    'radius-container': projects[project].radius,
     'amount-in': appearances[appearance]['success-text'], 'amount-out': appearances[appearance]['error-text']};
 }

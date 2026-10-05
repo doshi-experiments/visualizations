@@ -1,0 +1,5 @@
+Commissioner by Kostas Bartsokas
+Official source: https://github.com/kosbarts/Commissioner
+Upstream commit: 16865a9483b54bd633b5471b109792db44f7786e
+Asset: fonts/webfonts/Commissioner[FLAR,VOLM,slnt,wght].woff2
+License: SIL Open Font License 1.1; see commissioner-OFL.txt
