@@ -1,7 +1,23 @@
 import {resolveTokens} from './tokens.js';
 const valid = value => ['system', 'light', 'dark'].includes(value);
 const validate = value => {if (!valid(value)) throw new RangeError('Unknown appearance');};
+// A theme change recolors nearly every element at once; with their transitions
+// running it smears instead of snapping. Off until the new colors have painted.
+function withoutTransitions(doc, change) {
+  const win = doc.defaultView;
+  if (!doc.head || !win?.requestAnimationFrame) return change();
+  const style = doc.createElement('style');
+  style.textContent = '*,*::before,*::after{transition:none!important}';
+  doc.head.append(style);
+  const result = change();
+  void doc.body?.offsetHeight;
+  win.requestAnimationFrame(() => win.requestAnimationFrame(() => style.remove()));
+  return result;
+}
 function applyTheme(root, preference, media) {
+  return withoutTransitions(root.ownerDocument, () => paintTheme(root, preference, media));
+}
+function paintTheme(root, preference, media) {
   const appearance = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
   const tokens = resolveTokens({project: root.dataset.project || 'finance', appearance, density: root.dataset.density || 'comfortable'});
   root.dataset.appearancePreference = preference;

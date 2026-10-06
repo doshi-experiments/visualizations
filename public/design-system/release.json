@@ -1,12 +1,12 @@
 {
   "package": "@doshi-experiments/design-system",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "files": {
-    "components.css": "ea45fb53af61c2f49c6b69ba8b2c831133bc6320a861646bdfac14b9c1b2ebb8",
+    "components.css": "9abe41b5786c34c50b68a0155245dccf9481cf5716cb002857ae58695e52d188",
     "tokens.css": "4eec654779ec046a50ab237d4c41b8af14f795c9d86f43be748fa2483d7c6f3e",
     "tokens.js": "0d9f1195ac0d1044a1618ac7d20dd81ddeed096a35ddda738a70d7c18294a9bb",
     "tokens.json": "0b3dc872ec98d2e4b2957dcabafe381690268f187ffd5af5862afbb5f1974148",
-    "theme.js": "07dc3632ae1ded3c95a5f8c61974c209a657ed659000d3d730ae470cc9d8e2cd",
+    "theme.js": "f3be871bdb1b724d050345da98419ba0ceca58cd3e2bde986f8723303e78bd0a",
     "legacy.css": "bced6ed4bc607d7643aa6dfc0629841723a3df8561880dbeb6104068ef4bf384",
     "metadata.js": "85a8b6cf8fea9a688e74cd6a68b51ae84c51eb265b4e746621e04530bf5ba2a1",
     "site.js": "4b99d254789f92823daf8ee915e94d22652765acfc7a7e67e54acee5a3b72377",
