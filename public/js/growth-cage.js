@@ -613,7 +613,7 @@ const exhibit = {
   title: 'Growth Cage',
   state,
 
-  hint: 'Click inside the cage to drop balls — drag to aim. Click again any time to add more.',
+  hint: 'Click inside the cage to drop balls — drag to aim — or use Drop balls. Add more any time.',
 
   controls: [
     { type: 'group', label: 'Run', children: [
@@ -626,6 +626,7 @@ const exhibit = {
         { value: 'sediment', label: 'Sediment — under gravity' }
       ] },
       { type: 'button', key: 'toggle', label: 'Play / Pause', primary: true },
+      { type: 'button', key: 'drop', label: 'Drop balls' },
       { type: 'button', key: 'reset', label: 'Reset' },
       { type: 'button', key: 'reseed', label: 'New seed' }
     ] },
@@ -768,6 +769,9 @@ const exhibit = {
     if (key === 'reset') resetRun(false);
     else if (key === 'reseed') resetRun(true);
     else if (key === 'toggle') setRunning(!isRunning());
+    // The keyboard path to a run: the same drop a click without a drag makes,
+    // at the cage's centre with a random heading.
+    else if (key === 'drop') { drop(cx, cy, cx, cy); setHintRef && setHintRef(''); }
   },
 
   frame(dt, running) {
@@ -806,7 +810,7 @@ const exhibit = {
       ['Seed', String(state.seed)]
     ];
     let note = null;
-    if (!placed) note = 'Click inside the cage to begin. Click again later to add more balls.';
+    if (!placed) note = 'Click inside the cage or use Drop balls to begin. Add more balls any time.';
     else if (stopped && summary) note = summary;
     else if (stopSuppressed)
       note = 'You added balls by hand, so the packing stop has stood down — ' +
@@ -816,7 +820,7 @@ const exhibit = {
       progress: state.spawn ? clamp(phi / state.stopAt, 0, 1) : null,
       aria: placed
         ? `${balls.length} balls, generation ${maxGen}, cage ${(phi * 100).toFixed(0)} percent full`
-        : 'Empty cage. Click inside it to drop the first balls.'
+        : 'Empty cage. Click inside it or use Drop balls to begin.'
     };
   },
 
