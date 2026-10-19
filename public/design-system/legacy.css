@@ -28,8 +28,8 @@
 :root[data-project=experiments] .d-name {font-size:1.125rem}
 :root[data-project=experiments] .d-parts a {display:inline-flex; align-items:center; min-height:44px}
 :root[data-project=game] :is(h1,h2,.title,.word) {font-family:var(--ds-font-display);font-variation-settings:var(--ds-font-display-variation)}
-:root[data-project=game] .btn--primary {background:var(--ds-action-primary); color:var(--ds-action-text)}
-:root[data-project=game] .btn--primary:hover:not(:disabled) {background:var(--ds-action-hover)}
+:root[data-project=game] .btn--primary {background:var(--ds-action-gradient); color:var(--ds-action-text)}
+:root[data-project=game] .btn--primary:hover:not(:disabled) {background:var(--ds-action-gradient-hover)}
 :root[data-project=calculator] .rvb-shell > .flex > a {min-height:44px; display:inline-flex; align-items:center}
 .ds-skip {position:fixed; z-index:10000; top:12px; left:12px; transform:translateY(-200%); padding:12px 16px; min-height:44px; border:1px solid var(--ds-border); border-radius:var(--ds-radius-control); background:var(--ds-surface-overlay); color:var(--ds-text); text-decoration:none}
 .ds-skip:focus {transform:none}

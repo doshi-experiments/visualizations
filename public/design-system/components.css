@@ -47,8 +47,9 @@
 .ds-slider {grid-column:1; min-width:0}
 .ds-slider-control {display:flex; align-items:center; width:100%; height:44px; touch-action:none; user-select:none; cursor:pointer}
 .ds-slider-track {height:8px; width:100%; border-radius:999px; background:var(--ds-surface-inset); box-shadow:var(--ds-shadow-pressed)}
-.ds-slider-indicator {height:100%; border-radius:999px; background:var(--ds-action-primary)}
-.ds-slider-thumb {width:26px; height:26px; border:0; border-radius:50%; background:var(--ds-surface-raised); box-shadow:var(--ds-shadow-raised)}
+.ds-slider-indicator {height:100%; border-radius:999px; background:var(--ds-action-gradient)}
+/* The thumb is the signal with a white rim: the red reads on oat, the rim reads on charcoal. */
+.ds-slider-thumb {box-sizing:border-box; width:26px; height:26px; border:3px solid #FFFFFF; border-radius:50%; background:var(--ds-action-gradient); box-shadow:0 0 0 1px rgba(38,38,36,.18), 0 6px 12px -4px rgba(0,0,0,.45)}
 .ds-slider-thumb::before {content:""; position:absolute; inset:-12px}
 /* Base UI focuses the hidden range input inside the thumb, so ring the thumb that contains it. */
 .ds-slider-thumb:has(:focus-visible) {outline:3px solid var(--ds-focus); outline-offset:4px}
@@ -94,9 +95,9 @@
 
 /* Application shell and form controls (0.4). */
 .ds-visually-hidden {position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.ds-button[data-variant="primary"] {background:var(--ds-action-primary);color:var(--ds-action-text);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 14px -8px rgba(38,38,36,.55)}
-.ds-button[data-variant="primary"]:hover:not(:disabled):not([data-disabled]) {background:var(--ds-action-hover)}
-.ds-button[data-variant="primary"]:active:not(:disabled):not([data-disabled]) {background:var(--ds-action-pressed);box-shadow:inset 0 2px 4px rgba(38,38,36,.35)}
+.ds-button[data-variant="primary"] {background:var(--ds-action-gradient);color:var(--ds-action-text);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 14px -8px rgba(38,38,36,.55)}
+.ds-button[data-variant="primary"]:hover:not(:disabled):not([data-disabled]) {background:var(--ds-action-gradient-hover)}
+.ds-button[data-variant="primary"]:active:not(:disabled):not([data-disabled]) {background:var(--ds-action-gradient-pressed);box-shadow:inset 0 2px 4px rgba(38,38,36,.35)}
 .ds-button[data-variant="danger"] {background:var(--ds-error-bg);color:var(--ds-error-text);border-color:var(--ds-error-text);box-shadow:none}
 .ds-button[data-variant="ghost"] {background:transparent;border-color:transparent;color:var(--ds-action-link);box-shadow:none}
 .ds-button[data-variant]:is(:disabled,[data-disabled]),.ds-button:is(:disabled,[data-disabled]) {background:var(--ds-surface-inset);color:var(--ds-text-disabled);border-color:transparent;box-shadow:none}
@@ -142,7 +143,7 @@ button.ds-workflow-step:disabled {cursor:not-allowed;color:var(--ds-text-disable
 .ds-workflow-number {display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--ds-surface-inset);border:0;box-shadow:var(--ds-shadow-pressed);font-variant-numeric:tabular-nums}
 .ds-workflow-label small {display:block;margin-top:3px;font-weight:400}
 .ds-workflow [data-current] .ds-workflow-step {border-color:var(--ds-action-link);color:var(--ds-text);background:var(--ds-surface-raised)}
-.ds-workflow [data-current] .ds-workflow-number {background:var(--ds-action-primary);color:var(--ds-action-text);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.ds-workflow [data-current] .ds-workflow-number {background:var(--ds-action-gradient);color:var(--ds-action-text);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
 .ds-workflow [data-complete] .ds-workflow-number {background:var(--ds-success-bg);color:var(--ds-success-text);box-shadow:none}
 .ds-disclosure-summary {box-sizing:border-box;min-height:var(--ds-control-target);padding:16px 20px;cursor:pointer;color:var(--ds-text);font:600 .9375rem/1.5 var(--ds-font-body);overflow-wrap:anywhere}
 .ds-disclosure-summary:hover {background:var(--ds-selection)}
