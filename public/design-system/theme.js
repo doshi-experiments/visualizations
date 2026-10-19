@@ -43,6 +43,7 @@ export function createAppearanceController({root = document.documentElement, sto
   const win = doc.defaultView || globalThis.window;
   const media = win.matchMedia('(prefers-color-scheme: dark)');
   const listeners = new Set();
+  const defaultPreference = valid(root.dataset.appearanceDefault) ? root.dataset.appearanceDefault : 'system';
   const cookiePreference = () => {
     if (!cookie) return undefined;
     try {
@@ -55,7 +56,7 @@ export function createAppearanceController({root = document.documentElement, sto
   const localPreference = () => {
     try {const value = win.localStorage.getItem(storageKey); return valid(value) ? value : undefined;} catch {return undefined;}
   };
-  let mode = cookiePreference() || localPreference() || (valid(root.dataset.appearancePreference) ? root.dataset.appearancePreference : 'system');
+  let mode = cookiePreference() || localPreference() || (valid(root.dataset.appearancePreference) ? root.dataset.appearancePreference : defaultPreference);
   let state;
   let destroyed = false;
   function apply() {
@@ -76,7 +77,7 @@ export function createAppearanceController({root = document.documentElement, sto
     if (event.key !== storageKey && event.key !== null) return;
     // The shared cookie is authoritative across sibling hosts. On this host,
     // the storage event carries the most recent explicit preference.
-    mode = valid(event.newValue) ? event.newValue : cookiePreference() || 'system';
+    mode = valid(event.newValue) ? event.newValue : cookiePreference() || defaultPreference;
     apply();
   };
   media.addEventListener('change', followSystem);

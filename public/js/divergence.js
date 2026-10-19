@@ -410,7 +410,7 @@ function chart(g, w, h) {
   g.strokeRect(pad.l + .5, pad.t + .5, iw, ih);
 
   if (samples.length < 2) {
-    g.fillStyle = dim; g.font = '9px Commissioner,sans-serif';
+    g.fillStyle = dim; g.font = '9px "Host Grotesk",sans-serif';
     g.fillText('waiting', pad.l + 6, pad.t + 16);
     g.restore(); return;
   }
@@ -424,7 +424,7 @@ function chart(g, w, h) {
   };
 
   g.strokeStyle = line; g.globalAlpha = 0.6;
-  g.font = '8px Commissioner,sans-serif'; g.fillStyle = dim;
+  g.font = '8px "Host Grotesk",sans-serif'; g.fillStyle = dim;
   for (let d = Math.ceil(lo); d <= hi; d += 3) {
     const yy = Y(Math.pow(10, d));
     g.beginPath(); g.moveTo(pad.l, yy); g.lineTo(pad.l + iw, yy); g.stroke();
@@ -450,7 +450,7 @@ function chart(g, w, h) {
   samples.forEach((s, i) => i ? g.lineTo(X(s.t), Y(s.d)) : g.moveTo(X(s.t), Y(s.d)));
   g.stroke();
 
-  g.fillStyle = dim; g.font = '8px Commissioner,sans-serif';
+  g.fillStyle = dim; g.font = '8px "Host Grotesk",sans-serif';
   g.fillText(tMax.toFixed(0) + 's', pad.l + iw - 16, h - 3);
   g.restore();
 }

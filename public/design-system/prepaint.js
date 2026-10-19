@@ -14,7 +14,7 @@
   if (!preference) {
     try {const value = localStorage.getItem(key); if (valid(value)) preference = value;} catch {}
   }
-  preference ||= 'system';
+  preference ||= valid(root.dataset.appearanceDefault) ? root.dataset.appearanceDefault : 'system';
   const appearance = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference;
   root.dataset.appearancePreference = preference;
   root.dataset.theme = appearance;

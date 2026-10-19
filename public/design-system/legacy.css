@@ -23,7 +23,7 @@
 :root[data-project=experiments] .sheet::before, :root[data-project=experiments] .sheet::after {display:none}
 :root[data-project=experiments] .sheet-head {padding:24px; font-family:var(--ds-font-body)}
 :root[data-project=experiments] .sheet-pad {padding:0 24px 24px}
-:root[data-project=experiments] h1 {font-size:var(--ds-text-display);font-weight:700;font-variation-settings:var(--ds-font-display-variation);letter-spacing:-.025em}
+:root[data-project=experiments] h1 {font-size:var(--ds-text-display);font-weight:500;font-variation-settings:var(--ds-font-display-variation);letter-spacing:-.04em}
 :root[data-project=experiments] :is(.lede,.s-blurb,.d-blurb) {font-size:1rem}
 :root[data-project=experiments] .d-name {font-size:1.125rem}
 :root[data-project=experiments] .d-parts a {display:inline-flex; align-items:center; min-height:44px}

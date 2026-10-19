@@ -1,0 +1,7 @@
+Host Grotesk by Element Type
+Official source: https://github.com/Element-Type/HostGrotesk
+Retrieved: 2026-10-19 from Google Fonts (css2 API, family=Host+Grotesk:wght@300..800)
+Assets: host-grotesk-latin.woff2 (fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZpFjmw07Arg.woff2)
+        host-grotesk-latin-ext.woff2 (fonts.gstatic.com/s/hostgrotesk/v5/co3BmWBnlCJ3U42vbbfdwMjZqljmw07ArmNO.woff2)
+Variable weight axis 300 to 800, upright. Unicode ranges as served by Google Fonts.
+License: SIL Open Font License 1.1; see host-grotesk-OFL.txt
