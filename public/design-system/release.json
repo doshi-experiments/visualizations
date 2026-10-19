@@ -1,19 +1,22 @@
 {
   "package": "@doshi-experiments/design-system",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "files": {
-    "components.css": "9abe41b5786c34c50b68a0155245dccf9481cf5716cb002857ae58695e52d188",
-    "tokens.css": "4eec654779ec046a50ab237d4c41b8af14f795c9d86f43be748fa2483d7c6f3e",
-    "tokens.js": "0d9f1195ac0d1044a1618ac7d20dd81ddeed096a35ddda738a70d7c18294a9bb",
-    "tokens.json": "0b3dc872ec98d2e4b2957dcabafe381690268f187ffd5af5862afbb5f1974148",
-    "theme.js": "f3be871bdb1b724d050345da98419ba0ceca58cd3e2bde986f8723303e78bd0a",
-    "legacy.css": "bced6ed4bc607d7643aa6dfc0629841723a3df8561880dbeb6104068ef4bf384",
+    "components.css": "ccc9363860c6113a6e4a7d1fbb6871982732067f9458db8e86e6732dcca22f18",
+    "tokens.css": "e927a7e670f91a521f7642bdb0045edd1429f3959092e2a5ebbde03816bed81b",
+    "tokens.js": "485af68adc3c02f6ee6c24d2818e4d00596f4867abbb9bc4e3d19d037b86487d",
+    "tokens.json": "76c8f07f611c6f897437ed514a3bd17537e8a1047164d38bcf23af41dfcd5d82",
+    "theme.js": "cbd5ec97c3ec6211016a4f14b097cee09770b82ad98471ff6ce37b7fa30442e1",
+    "legacy.css": "cdc92f61af3e7155fc7a7c05edca22e324cd8769d4ab951479f77c75e9161fff",
     "metadata.js": "85a8b6cf8fea9a688e74cd6a68b51ae84c51eb265b4e746621e04530bf5ba2a1",
-    "site.js": "4b99d254789f92823daf8ee915e94d22652765acfc7a7e67e54acee5a3b72377",
+    "site.js": "140d23610c4c952d667087812555b68b3cda1df87a7089faf684a6c5f33cc584",
     "site-contract.js": "79817b00367741f3307e86318d34889e1f450d8d5126c3143ef902942286a620",
-    "prepaint.js": "ca8efe9d5ffce5c836472ea5baff5c5c7245a7ec6878548c01b831122769e886",
-    "fonts/commissioner-variable.woff2": "9a41b2e45163615e99b220d11bcb810647b293fa4d8408611cc1a603b72f1cc2",
-    "fonts/commissioner-OFL.txt": "4a7d88c77b4bc39ff84f2e058ba8f015636c50ce33588a86d9da97defe519933",
-    "fonts/commissioner-source.txt": "66cfda55dca176600b4fef627d73391e391c16e6d5d396501b60991d7a869850"
+    "prepaint.js": "e9d24bf13b618b573b33c6c2b157f562ee7d4910948be5775da81bb597c11bb2",
+    "fonts/host-grotesk-latin.woff2": "5662dcd15d8c7dc5bf2168baa71072e509c5b97167554b861293f68e1aa6dde8",
+    "fonts/host-grotesk-latin-ext.woff2": "ad1af424e01f4bc276faddfc70ada26f7af4c4ef168bdf34848b7210b7c9e69f",
+    "fonts/host-grotesk-OFL.txt": "f04ad0873907546e160c7a79b1e42bd3cd380c7e5ee4c1b3c11f43faca1675e7",
+    "fonts/host-grotesk-source.txt": "a4f65b98c5c75db3152c510db50df2a28cf6360d5a6eb1f326bf0af3808c286c",
+    "felt/fibre-light.svg": "22f80b3f4313119477a00f4a4f31e3d49aa3e5d7718b220a6ff0fa9836395190",
+    "felt/fibre-dark.svg": "1a29a96cc94cbfb96ed0927ef80c13a87bf5a7bca288a5ba5fc394d18db749c4"
   }
 }

@@ -1159,7 +1159,7 @@ function drawDropUI(g) {
   g.moveTo(x, y - 11); g.lineTo(x, y + 11);
   g.stroke();
   g.globalAlpha = 0.75;
-  g.font = '9px Commissioner,sans-serif';
+  g.font = '9px "Host Grotesk",sans-serif';
   g.fillText(`${(x - cx).toFixed(0)}, ${(y - cy).toFixed(0)}`, x + 14, y - 6);
   g.globalAlpha = 1;
 
@@ -1188,7 +1188,7 @@ function chart(g, w, h) {
   g.strokeRect(pad.l + .5, pad.t + .5, iw, ih);
 
   if (samples.length < 2) {
-    g.fillStyle = dim; g.font = '9px Commissioner,sans-serif';
+    g.fillStyle = dim; g.font = '9px "Host Grotesk",sans-serif';
     g.fillText('waiting for a run', pad.l + 6, pad.t + 16);
     g.restore(); return;
   }
@@ -1207,7 +1207,7 @@ function chart(g, w, h) {
 
   // gridlines: decades on a log axis, quarters otherwise
   g.strokeStyle = line; g.globalAlpha = 0.6;
-  g.font = '8px Commissioner,sans-serif'; g.fillStyle = dim;
+  g.font = '8px "Host Grotesk",sans-serif'; g.fillStyle = dim;
   if (log) {
     for (let d = 0; Math.pow(10, d) <= nMax * 1.4; d++) {
       const y = Y(Math.pow(10, d));
@@ -1263,7 +1263,7 @@ function chart(g, w, h) {
   samples.forEach((s, i) => i ? g.lineTo(X(s.t), Y(s.n)) : g.moveTo(X(s.t), Y(s.n)));
   g.stroke();
 
-  g.fillStyle = dim; g.font = '8px Commissioner,sans-serif';
+  g.fillStyle = dim; g.font = '8px "Host Grotesk",sans-serif';
   g.fillText((tMax / 1000).toFixed(0) + 's', pad.l + iw - 16, h - 3);
   g.restore();
 }

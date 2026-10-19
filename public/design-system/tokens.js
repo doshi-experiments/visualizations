@@ -1,64 +1,77 @@
 // Single source for the shared identity, CSS, charts and non-JavaScript adapters.
+// 0.6 "Felt": one identity for the portfolio and every app. Warm grey wool in light, charcoal in
+// dark, one grotesk, and one signal, the coral #FF5E7C. Surfaces are raised felt with a stitch;
+// fields and tracks are pressed in. See docs/identity.md.
 export const foundation = {
-  'font-body': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
-  'font-display': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
-  'font-mono': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
-  'font-body-variation': '"FLAR" 0, "VOLM" 0, "slnt" 0',
-  'font-display-variation': '"FLAR" 22, "VOLM" 0, "slnt" 0',
+  'font-body': '"Host Grotesk", ui-sans-serif, system-ui, sans-serif',
+  'font-display': '"Host Grotesk", ui-sans-serif, system-ui, sans-serif',
+  'font-mono': '"Host Grotesk", ui-sans-serif, system-ui, sans-serif',
+  // Host Grotesk has no flare or volume axes; these stay for consumers that still read them.
+  'font-body-variation': 'normal',
+  'font-display-variation': 'normal',
   'line-body': '1.55', 'measure': '64ch',
   'text-caption': '0.875rem', 'text-body': '1rem', 'text-card': '1.25rem',
   'text-section': '1.5625rem', 'text-title': '1.9375rem', 'text-large': '2.4375rem',
   'text-hero': '3.0625rem', 'text-display': 'clamp(2.4375rem, 5vw, 3.8125rem)',
   'space-1': '4px', 'space-2': '8px', 'space-3': '12px', 'space-4': '16px',
   'space-6': '24px', 'space-8': '32px', 'space-12': '48px',
-  'radius-control': '8px', 'radius-container': '16px', 'radius-dialog': '20px',
+  // Buttons, keys, chips and segments are pills; fields, selects, tracks and alerts are 14px.
+  'radius-pill': '999px', 'radius-control': '14px', 'radius-container': '24px', 'radius-dialog': '30px',
   'duration-fast': '120ms', 'duration-base': '240ms', 'duration-slow': '480ms',
-  'ease': 'cubic-bezier(.2,.75,.25,1)', 'page-width': '1240px',
-  'shadow-raised': 'none', 'shadow-overlay': '0 20px 64px #17323D30',
-  'crane': '#E7BD45',
+  'ease': 'cubic-bezier(.2,.7,.2,1)', 'ease-spring': 'cubic-bezier(.34,1.56,.64,1)', 'page-width': '1240px',
+  'action-text': '#262624',
 };
 export const appearances = {
   light: {
-    'text': '#17323D', 'text-secondary': '#49626D', 'text-disabled': '#5A717B', 'text-inverse': '#FFFFFF',
-    'surface-page': '#F1F5F7', 'surface-raised': '#FFFFFF', 'surface-overlay': '#FFFFFF',
-    'border': '#758892', 'selection': '#D3EAF4',
-    'success-bg': '#E0F2E9', 'success-text': '#185940', 'success-icon': '#185940',
-    'warning-bg': '#FFF3CE', 'warning-text': '#6B5000', 'warning-icon': '#6B5000',
-    'error-bg': '#FCE7E7', 'error-text': '#982F38', 'error-icon': '#982F38',
-    'info-bg': '#DFEEF6', 'info-text': '#1B5D8A', 'info-icon': '#1B5D8A',
-    'chart-1': '#1B5D8A', 'chart-2': '#2A7C77', 'chart-3': '#B15A2B', 'chart-4': '#617A86',
-    'ramp-1': '#DFEEF6', 'ramp-2': '#A8D7EB', 'ramp-3': '#6DA9CA', 'ramp-4': '#1B5D8A', 'ramp-5': '#17323D',
+    'text': '#262624', 'text-secondary': '#55524C', 'text-disabled': '#5F5B54', 'text-inverse': '#F1EEE9',
+    'surface-page': '#E7E4DE', 'surface-raised': '#F1EEE9', 'surface-overlay': '#F6F4F0', 'surface-inset': '#DAD6CE',
+    'border': '#77716A', 'selection': '#F5D9DE', 'stitch': 'rgba(38,38,36,.14)',
+    'action-primary': '#FF5E7C', 'action-hover': '#FF7A93', 'action-pressed': '#FF6683', 'action-link': '#A1263F',
+    'shadow-raised': 'inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 1px rgba(38,38,36,.07), 0 10px 18px -12px rgba(38,38,36,.5)',
+    'shadow-pressed': 'inset 0 2px 4px rgba(38,38,36,.22), inset 0 0 0 1px rgba(38,38,36,.06)',
+    'shadow-overlay': '0 30px 60px -20px rgba(38,38,36,.45), 0 0 0 1px rgba(38,38,36,.08)',
+    'success-bg': '#DCE6D3', 'success-text': '#2E5A29', 'success-icon': '#2E5A29',
+    'warning-bg': '#F1E1B5', 'warning-text': '#6A4C00', 'warning-icon': '#6A4C00',
+    'error-bg': '#F3D2CE', 'error-text': '#962620', 'error-icon': '#962620',
+    'info-bg': '#D5E0E7', 'info-text': '#2B5876', 'info-icon': '#2B5876',
+    'chart-1': '#262624', 'chart-2': '#C93A58', 'chart-3': '#3B7069', 'chart-4': '#8C6A22',
+    'ramp-1': '#F5D9DE', 'ramp-2': '#EFA9B7', 'ramp-3': '#E07790', 'ramp-4': '#B2405C', 'ramp-5': '#6B2337',
+    // Retired with 0.6; kept for consumers that still name it. Meaningful progress, in mustard.
+    'crane': '#8C6A22',
   },
   dark: {
-    'text': '#F1F5F7', 'text-secondary': '#C0D1D8', 'text-disabled': '#A7BDC6', 'text-inverse': '#17323D',
-    'surface-page': '#17323D', 'surface-raised': '#23414C', 'surface-overlay': '#2B4A55',
-    'border': '#82A2AD', 'selection': '#345D70',
-    'success-bg': '#224D3F', 'success-text': '#A9E0C6', 'success-icon': '#A9E0C6',
-    'warning-bg': '#4A4021', 'warning-text': '#F3D78A', 'warning-icon': '#F3D78A',
-    'error-bg': '#542F38', 'error-text': '#F3B6BC', 'error-icon': '#F3B6BC',
-    'info-bg': '#2A4E65', 'info-text': '#A8D7EB', 'info-icon': '#A8D7EB',
-    'chart-1': '#A8D7EB', 'chart-2': '#81C9BD', 'chart-3': '#F0B17B', 'chart-4': '#BDCDD4',
-    'ramp-1': '#23414C', 'ramp-2': '#1B5D8A', 'ramp-3': '#6DA9CA', 'ramp-4': '#A8D7EB', 'ramp-5': '#DFEEF6',
+    'text': '#ECE9E3', 'text-secondary': '#B9B4AA', 'text-disabled': '#AEA99F', 'text-inverse': '#262624',
+    'surface-page': '#33322F', 'surface-raised': '#3E3D39', 'surface-overlay': '#3E3D39', 'surface-inset': '#2B2A27',
+    'border': '#8E897F', 'selection': '#4A3438', 'stitch': 'rgba(236,233,227,.14)',
+    'action-primary': '#FF5E7C', 'action-hover': '#FF7A93', 'action-pressed': '#FF6683', 'action-link': '#FF7F96',
+    'shadow-raised': 'inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(236,233,227,.08), 0 12px 20px -12px rgba(0,0,0,.7)',
+    'shadow-pressed': 'inset 0 3px 6px rgba(0,0,0,.4), inset 0 0 0 1px rgba(236,233,227,.06)',
+    'shadow-overlay': '0 30px 60px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(236,233,227,.12)',
+    'success-bg': '#34442F', 'success-text': '#B7DCA9', 'success-icon': '#B7DCA9',
+    'warning-bg': '#4A4026', 'warning-text': '#EBCB7C', 'warning-icon': '#EBCB7C',
+    'error-bg': '#55302C', 'error-text': '#F4B3AC', 'error-icon': '#F4B3AC',
+    'info-bg': '#2F4250', 'info-text': '#AFCDE3', 'info-icon': '#AFCDE3',
+    'chart-1': '#ECE9E3', 'chart-2': '#FF7F96', 'chart-3': '#7FC1B8', 'chart-4': '#E2C27A',
+    'ramp-1': '#4A3438', 'ramp-2': '#7A3B4A', 'ramp-3': '#B9506A', 'ramp-4': '#FF7F96', 'ramp-5': '#FFD3DB',
+    'crane': '#E2C27A',
   },
 };
-// One recognizable identity. Project IDs remain compatible with existing apps.
+// One look for everything: every project resolves to the same palette. Project IDs stay so
+// consumers keep their contract and a future project can diverge without a new API.
+export const projectAppearanceOverrides = {};
 export const projects = Object.fromEntries(
   ['portfolio', 'experiments', 'visualizations', 'calculator', 'game', 'finance', 'household']
-    .map(project => [project, {light: '#1B5D8A', dark: '#A8D7EB', radius: '16px'}]),
+    .map(project => [project, {light: appearances.light['action-primary'], dark: appearances.dark['action-primary'], radius: '24px'}]),
 );
 export const densities = {
   comfortable: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '12px', 'panel-padding': '24px'},
   compact: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '4px', 'panel-padding': '16px'},
   game: {'control-height': '60px', 'control-target': '60px', 'cell-padding': '16px', 'panel-padding': '32px'},
 };
-function shade(hex, amount, light) {
-  return '#' + hex.slice(1).match(/../g).map(v => Math.round(parseInt(v, 16) * (1 - amount) + (light ? 255 : 0) * amount).toString(16).padStart(2, '0')).join('');
-}
 export function resolveTokens({project = 'finance', appearance = 'light', density = 'comfortable'} = {}) {
   if (!Object.hasOwn(projects, project) || !Object.hasOwn(appearances, appearance) || !Object.hasOwn(densities, density)) throw new RangeError('Unknown theme dimension');
-  const brand = projects[project][appearance];
-  return {...foundation, ...appearances[appearance], ...densities[density],
-    'action-primary': brand, 'action-hover': shade(brand, .12, appearance === 'dark'), 'action-pressed': shade(brand, .22, appearance === 'dark'),
-    'action-text': appearances[appearance]['text-inverse'], 'focus': brand,
-    'amount-in': appearances[appearance]['success-text'], 'amount-out': appearances[appearance]['error-text']};
+  const palette = {...appearances[appearance], ...projectAppearanceOverrides[project]?.[appearance]};
+  return {...foundation, ...palette, ...densities[density],
+    'focus': palette['action-link'],
+    'amount-in': palette['success-text'], 'amount-out': palette['error-text']};
 }
