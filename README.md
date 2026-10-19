@@ -224,19 +224,24 @@ Connected to Cloudflare and deployed on push to `main`. There is no build step:
 
 ## The shared theme cookie
 
-The light/dark toggle writes a `sheet-theme` cookie scoped to `.rishabhdoshi.com`,
-so the choice follows you across the subdomains. The head script that stamps
-`data-theme` before first paint is byte-identical across all three sheets — three
-repos depend on that cookie name and scope, and a typo fails silently and only in
-production.
+The Appearance control writes a `sheet-theme` cookie scoped to `.rishabhdoshi.com`,
+so the choice follows you across the public subdomains. `public/design-system/prepaint.js`
+stamps `data-theme` before first paint and must load synchronously in `<head>`
+before any stylesheet. Every public site depends on that cookie name and scope,
+and a change fails silently and only in production.
 
+## Shared design system (0.7.0)
 
-## Shared design system (0.1.0)
+`public/design-system/` is a generated snapshot of `@doshi-experiments/design-system`.
+Its `release.json` records the version and a SHA-256 hash per file, and CI re-checks
+them, so never edit these files here. Upgrade through the design-system repository's
+central `npm run rollout` command.
 
-This checkout consumes generated assets from `@doshi-experiments/design-system`.
-The `design-system/release.json` file (under `public/` or `src/` where applicable)
-records their version and hashes. Edit the shared token source, rebuild it, and
-run its `scripts/sync.mjs` against this asset directory to upgrade. Do not edit
-these generated files locally. Keep the `sheet-theme` cookie and pre-paint
-stamp intact. Light/dark appearance and project identity are separate dimensions.
-Hanken Grotesk is served locally with its OFL notice.
+The sheet wears the shared Felt identity: Host Grotesk, warm grey wool in light and
+charcoal in dark, a fibre texture, and the signal, a raspberry-to-brick gradient under
+white text. The page's own styles live in `public/index.html`. Exhibit tabs and control
+buttons are raised pills, panels are raised felt without outlines, selects and colour
+wells are pressed in, and dividers are stitched. The selected tab, primary buttons and
+the progress bar use `--ds-action-gradient`; sliders and toggles take the solid
+`--ds-action-primary` through `accent-color`; links use `--ds-action-link`. Canvas
+labels draw in Host Grotesk. Exhibit colours chosen by visitors remain their own.
