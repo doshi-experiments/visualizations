@@ -80,6 +80,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -169,6 +170,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -254,6 +256,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -340,6 +343,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -427,6 +431,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -514,6 +519,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -599,6 +605,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -685,6 +692,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -772,6 +780,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -859,6 +868,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -944,6 +954,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1030,6 +1041,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1117,6 +1129,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1204,6 +1217,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1289,6 +1303,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1375,6 +1390,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1462,6 +1478,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1549,6 +1566,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1634,6 +1652,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1720,6 +1739,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1807,6 +1827,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -1894,6 +1915,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -1979,6 +2001,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -2065,6 +2088,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -2152,6 +2176,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -2239,6 +2264,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -2324,6 +2350,7 @@
   --ds-crane: #8C6A22;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #A22826;
@@ -2410,6 +2437,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -2497,6 +2525,7 @@
   --ds-crane: #E2C27A;
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
   --ds-focus: #E89D9C;
@@ -2507,18 +2536,21 @@
 :root[data-project][data-density="comfortable"] {
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 12px;
   --ds-panel-padding: 24px;
 }
 :root[data-project][data-density="compact"] {
   --ds-control-height: 44px;
   --ds-control-target: 44px;
+  --ds-control-compact-height: 36px;
   --ds-cell-padding: 4px;
   --ds-panel-padding: 16px;
 }
 :root[data-project][data-density="game"] {
   --ds-control-height: 60px;
   --ds-control-target: 60px;
+  --ds-control-compact-height: 60px;
   --ds-cell-padding: 16px;
   --ds-panel-padding: 32px;
 }

@@ -70,10 +70,12 @@ export const projects = Object.fromEntries(
   ['portfolio', 'experiments', 'visualizations', 'calculator', 'game', 'finance', 'household']
     .map(project => [project, {light: appearances.light['action-primary'], dark: appearances.dark['action-primary'], radius: '24px'}]),
 );
+// control-compact-height (0.7.1) is the visible height of size="small" buttons and
+// segmented controls; their hit area still covers control-target. Game never shrinks.
 export const densities = {
-  comfortable: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '12px', 'panel-padding': '24px'},
-  compact: {'control-height': '44px', 'control-target': '44px', 'cell-padding': '4px', 'panel-padding': '16px'},
-  game: {'control-height': '60px', 'control-target': '60px', 'cell-padding': '16px', 'panel-padding': '32px'},
+  comfortable: {'control-height': '44px', 'control-target': '44px', 'control-compact-height': '36px', 'cell-padding': '12px', 'panel-padding': '24px'},
+  compact: {'control-height': '44px', 'control-target': '44px', 'control-compact-height': '36px', 'cell-padding': '4px', 'panel-padding': '16px'},
+  game: {'control-height': '60px', 'control-target': '60px', 'control-compact-height': '60px', 'cell-padding': '16px', 'panel-padding': '32px'},
 };
 export function resolveTokens({project = 'finance', appearance = 'light', density = 'comfortable'} = {}) {
   if (!Object.hasOwn(projects, project) || !Object.hasOwn(appearances, appearance) || !Object.hasOwn(densities, density)) throw new RangeError('Unknown theme dimension');

@@ -14,6 +14,13 @@
 .ds-segmented {display:inline-flex; flex-wrap:wrap; gap:6px; max-width:100%; padding:5px; border-radius:calc(var(--ds-control-target) / 2 + 5px); background:var(--ds-surface-inset); box-shadow:var(--ds-shadow-pressed)}
 .ds-segment {display:inline-flex; align-items:center; justify-content:center; min-height:var(--ds-control-target); padding:8px 16px; font:600 .875rem var(--ds-font-body); border:1px solid transparent; border-radius:var(--ds-radius-pill); color:var(--ds-text-secondary); background:transparent; cursor:pointer}
 .ds-segment:hover:not([data-checked]) {color:var(--ds-text)}
+/* Small size (0.7.1): a shorter pill for dense app layouts. The visible control is
+   control-compact-height; an invisible hit area keeps the full control-target. */
+.ds-button[data-size="small"],.ds-segmented[data-size="small"] .ds-segment {position:relative; min-height:var(--ds-control-compact-height); line-height:1.25}
+.ds-button[data-size="small"] {padding:6px 16px}
+.ds-segmented[data-size="small"] {border-radius:calc(var(--ds-control-compact-height) / 2 + 5px)}
+.ds-segmented[data-size="small"] .ds-segment {padding:6px 14px}
+.ds-button[data-size="small"]::after,.ds-segmented[data-size="small"] .ds-segment::after {content:""; position:absolute; inset:50% 0 auto; height:max(100%, var(--ds-control-target)); translate:0 -50%}
 .ds-segment[data-checked] {color:var(--ds-text); background:var(--ds-surface-raised); box-shadow:var(--ds-shadow-raised)}
 
 /* Shared application surfaces and input recipes. */
@@ -195,9 +202,9 @@ button.ds-workflow-step:disabled {cursor:not-allowed;color:var(--ds-text-disable
 .ds-site-header--without-title {grid-template-columns:minmax(0,1fr) auto}
 .ds-site-navigation {display:flex;align-items:center;gap:16px;min-width:0}
 .ds-site-link {position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;color:var(--ds-text-secondary);font:500 1rem/1.55 var(--ds-font-body);text-decoration:none;white-space:nowrap}
-.ds-site-link::after {content:"";position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--ds-action-primary);transform:scale(0);transition:transform var(--ds-duration-base) var(--ds-ease-spring)}
+.ds-site-link::after {content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;border-radius:1px;background:var(--ds-action-primary);transform:scaleX(0);transition:transform var(--ds-duration-base) var(--ds-ease-spring)}
 .ds-site-link:hover,.ds-site-link[aria-current="page"] {color:var(--ds-text)}
-.ds-site-link:hover::after,.ds-site-link[aria-current="page"]::after {transform:scale(1)}
+.ds-site-link:hover::after,.ds-site-link[aria-current="page"]::after {transform:none}
 .ds-site-project {min-width:0;padding-inline:8px;color:var(--ds-text-secondary);font:400 .875rem/1.55 var(--ds-font-body);overflow-wrap:anywhere}
 .ds-appearance {box-sizing:border-box;display:flex;align-items:center;gap:10px;width:auto;min-width:0;max-width:100%;margin:0;color:var(--ds-text-secondary);font:400 .875rem/1.55 var(--ds-font-body);text-transform:none;letter-spacing:normal}
 .ds-appearance-label {display:block;white-space:nowrap}
@@ -229,3 +236,93 @@ button.ds-workflow-step:disabled {cursor:not-allowed;color:var(--ds-text-disable
 :root[data-project][data-theme="dark"] body {background-image:url("./felt/fibre-dark.svg"); background-blend-mode:overlay}
 @media (prefers-color-scheme:dark) {:root[data-project]:not([data-theme]) body {background-image:url("./felt/fibre-dark.svg"); background-blend-mode:overlay}}
 :root[data-project][data-texture="off"] body {background-image:none}
+
+/* Pickers, menus, toggles and toasts (0.8.0). Picker fields are pressed in like the
+   other inputs; every popup is the same raised felt. size="small" draws at
+   control-compact-height over a control-target hit area, as small buttons do. */
+.ds-picker {box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:max(44px,var(--ds-control-height));padding:6px 12px 6px 14px;border:1px solid var(--ds-border);border-radius:var(--ds-radius-control);background:var(--ds-surface-inset);box-shadow:var(--ds-shadow-pressed);color:var(--ds-text);font:400 1rem/1.4 var(--ds-font-body);text-align:left;cursor:pointer}
+.ds-picker[data-size="small"] {position:relative;min-height:var(--ds-control-compact-height);padding:4px 10px 4px 12px;font-size:.875rem}
+.ds-picker[data-variant="quiet"] {width:auto;max-width:100%;gap:6px;padding-inline:8px;background:transparent;border-color:transparent;box-shadow:none;font-weight:500}
+.ds-picker[data-variant="quiet"]:is(:hover,[data-popup-open]) {background:var(--ds-surface-inset);border-color:var(--ds-border)}
+.ds-picker:focus-visible {outline:3px solid var(--ds-focus);outline-offset:3px}
+.ds-picker:is(:disabled,[data-disabled]) {cursor:not-allowed;color:var(--ds-text-disabled)}
+.ds-picker-value {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ds-picker-value[data-empty] {color:var(--ds-text-secondary)}
+.ds-picker-icon {flex:none;color:var(--ds-text-secondary)}
+.ds-picker-field > .ds-field-label {display:block}
+.ds-picker-field[data-layout="inline"] {display:flex;align-items:center;gap:10px}
+.ds-picker-field[data-layout="inline"] > .ds-field-label {margin:0;white-space:nowrap;font-size:.875rem}
+.ds-picker-field[data-layout="inline"] .ds-picker {width:auto;min-width:var(--ds-picker-min-width,128px)}
+/* Above dialogs (200–201), so a picker inside a dialog opens over it; toasts stay at 180. */
+.ds-menu-positioner {z-index:210}
+.ds-menu {box-sizing:border-box;min-width:180px;padding:6px;border-radius:var(--ds-radius-control);background:var(--ds-surface-overlay);color:var(--ds-text);box-shadow:var(--ds-shadow-overlay);outline:none;font:400 1rem/1.4 var(--ds-font-body)}
+.ds-menu-item,.ds-option {display:flex;align-items:center;min-height:var(--ds-control-target);padding:0 14px;border-radius:10px;cursor:pointer;outline:none;font-weight:500}
+.ds-menu-item[data-highlighted],.ds-option[data-highlighted] {background:var(--ds-selection)}
+.ds-menu-item[data-disabled],.ds-option[data-disabled] {color:var(--ds-text-disabled);cursor:not-allowed}
+.ds-menu-separator {height:0;margin:6px 4px;border-top:1.5px dashed var(--ds-stitch)}
+.ds-select-popup {min-width:var(--anchor-width);max-height:min(360px,var(--available-height));overflow-y:auto}
+.ds-option {justify-content:space-between;gap:16px;padding:0 12px;white-space:nowrap}
+.ds-option[data-selected] {font-weight:700}
+.ds-option-check {display:flex;color:var(--ds-action-link)}
+.ds-option-group {margin-top:6px;padding-top:6px;border-top:1.5px dashed var(--ds-stitch)}
+.ds-option-group-label {padding:4px 12px 6px;font-size:.75rem;font-weight:700;color:var(--ds-text-secondary)}
+.ds-button.ds-menu-trigger {display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-inline:16px 12px}
+.ds-button.ds-menu-trigger[data-popup-open] {box-shadow:var(--ds-shadow-pressed);background:var(--ds-surface-inset)}
+.ds-icon-button {position:relative;box-sizing:border-box;display:inline-grid;place-items:center;flex:none;width:var(--ds-control-target);height:var(--ds-control-target);padding:0;border:0;border-radius:50%;background:transparent;color:var(--ds-text);cursor:pointer}
+.ds-icon-button[data-size="small"] {width:32px;height:32px}
+.ds-icon-button:hover:not(:disabled) {background:var(--ds-selection)}
+.ds-icon-button:focus-visible {outline:3px solid var(--ds-focus);outline-offset:1px}
+.ds-icon-button:disabled {cursor:not-allowed;color:var(--ds-text-disabled)}
+:is(.ds-picker,.ds-toggle)[data-size="small"]::after {content:"";position:absolute;inset:50% 0 auto;height:max(100%,var(--ds-control-target));translate:0 -50%}
+.ds-icon-button[data-size="small"]::after {content:"";position:absolute;left:50%;top:50%;width:var(--ds-control-target);height:var(--ds-control-target);translate:-50% -50%;border-radius:50%}
+
+/* Calendar: each day is a full target; its tile is drawn inset, so neighbours never overlap. */
+.ds-date-popup {padding:10px}
+.ds-calendar-head {display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.ds-calendar-title {font-weight:600}
+.ds-calendar-grid {border-collapse:collapse}
+.ds-calendar-grid th {padding:4px 0;font-size:.75rem;font-weight:600;color:var(--ds-text-secondary);text-align:center}
+.ds-calendar-grid td {padding:0}
+.ds-day {position:relative;isolation:isolate;display:grid;place-items:center;width:var(--ds-control-target);height:var(--ds-control-target);padding:0;border:0;border-radius:12px;background:transparent;color:var(--ds-text);font:500 .875rem/1 var(--ds-font-body);font-variant-numeric:tabular-nums;cursor:pointer}
+.ds-day::before {content:"";position:absolute;inset:3px 2px;z-index:-1;border-radius:10px}
+.ds-day:hover:not(:disabled,[data-selected])::before {background:var(--ds-selection)}
+.ds-day[data-outside] {color:var(--ds-text-secondary)}
+.ds-day[data-today]::before {box-shadow:inset 0 0 0 1.5px var(--ds-text-secondary)}
+.ds-day[data-selected] {color:var(--ds-action-text);font-weight:700}
+.ds-day[data-selected]::before {background:var(--ds-action-gradient);box-shadow:none}
+.ds-day:disabled {color:var(--ds-text-disabled);cursor:not-allowed}
+.ds-day:focus-visible {outline:3px solid var(--ds-focus);outline-offset:-1px}
+.ds-calendar-foot {display:flex;justify-content:space-between;gap:8px;margin-top:6px;padding-top:6px;border-top:1.5px dashed var(--ds-stitch)}
+.ds-calendar-foot:empty {display:none}
+
+/* Toggle button: off is quiet; on is pressed in, or its tone's tint with words (never bare colour). */
+.ds-toggle {position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--ds-control-height);padding:8px 14px;border:1px solid transparent;border-radius:var(--ds-radius-pill);background:transparent;color:var(--ds-text-secondary);font:600 .875rem/1.25 var(--ds-font-body);white-space:nowrap;cursor:pointer}
+.ds-toggle[data-size="small"] {min-height:var(--ds-control-compact-height);padding:4px 10px;font-size:.8125rem}
+.ds-toggle:hover:not(:disabled,[data-disabled]) {background:var(--ds-surface-inset)}
+.ds-toggle[data-pressed] {color:var(--ds-text);background:var(--ds-surface-inset);box-shadow:var(--ds-shadow-pressed)}
+.ds-toggle[data-pressed][data-tone="error"] {color:var(--ds-error-text);background:var(--ds-error-bg);border-color:color-mix(in srgb,var(--ds-error-text) 30%,transparent);box-shadow:none}
+.ds-toggle[data-pressed][data-tone="warning"] {color:var(--ds-warning-text);background:var(--ds-warning-bg);border-color:color-mix(in srgb,var(--ds-warning-text) 30%,transparent);box-shadow:none}
+.ds-toggle[data-pressed][data-tone="success"] {color:var(--ds-success-text);background:var(--ds-success-bg);border-color:color-mix(in srgb,var(--ds-success-text) 30%,transparent);box-shadow:none}
+.ds-toggle[data-pressed][data-tone="info"] {color:var(--ds-info-text);background:var(--ds-info-bg);border-color:color-mix(in srgb,var(--ds-info-text) 30%,transparent);box-shadow:none}
+.ds-toggle:focus-visible {outline:3px solid var(--ds-focus);outline-offset:2px}
+.ds-toggle:is(:disabled,[data-disabled]) {cursor:not-allowed}
+.ds-toggle[aria-busy="true"] {cursor:progress;opacity:.7}
+
+/* Toasts: bottom right, newest at the bottom; full width on a phone. Error toasts carry the error tint. */
+.ds-toast-viewport {position:fixed;z-index:180;right:24px;bottom:24px;display:flex;flex-direction:column;gap:8px;width:min(380px,calc(100vw - 32px));outline:none}
+.ds-toast {display:flex;align-items:flex-start;gap:10px;padding:10px 6px 10px 14px;border-radius:var(--ds-radius-control);background:var(--ds-surface-overlay);color:var(--ds-text);box-shadow:var(--ds-shadow-overlay);font:400 1rem/1.4 var(--ds-font-body);transition:opacity var(--ds-duration-fast) var(--ds-ease),translate var(--ds-duration-fast) var(--ds-ease)}
+.ds-toast[data-starting-style],.ds-toast[data-ending-style] {opacity:0;translate:0 12px}
+.ds-toast[data-limited] {display:none}
+.ds-toast-icon {flex:none;margin-top:8px;color:var(--ds-success-text)}
+.ds-toast[data-tone="info"] .ds-toast-icon {color:var(--ds-info-icon)}
+.ds-toast[data-tone="warning"] .ds-toast-icon {color:var(--ds-warning-icon)}
+.ds-toast[data-tone="error"] {color:var(--ds-error-text);background:var(--ds-error-bg)}
+.ds-toast[data-tone="error"] :is(.ds-toast-icon,.ds-toast-description,.ds-toast-close) {color:var(--ds-error-text)}
+.ds-toast-text {flex:1;min-width:0;padding-top:5px}
+.ds-toast-title {margin:0;font:600 .9375rem/1.4 var(--ds-font-body);letter-spacing:0;overflow-wrap:anywhere}
+.ds-toast-description {margin:2px 0 0;font-size:.875rem;color:var(--ds-text-secondary)}
+.ds-toast-close {color:var(--ds-text-secondary)}
+.ds-toast-close:hover {color:var(--ds-text)}
+@media(max-width:700px) {.ds-toast-viewport {left:16px;right:16px;bottom:16px;width:auto}}
+@media(prefers-reduced-motion:reduce) {.ds-toast {transition:opacity var(--ds-duration-fast) linear}
+ .ds-toast[data-starting-style],.ds-toast[data-ending-style] {translate:none}}
