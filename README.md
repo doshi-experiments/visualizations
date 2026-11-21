@@ -152,6 +152,7 @@ Controls are declarative; the shell renders them:
 public/
   index.html            sheet chrome, tokens, control-panel styles
   js/
+    boot.js             the exhibit list; mounts the shell
     shell.js            registry, router, control kit, the one rAF loop
     trails.js           persistent trail buffer
     gl.js               WebGL2 core + bloom/aberration/grain post chain
@@ -230,7 +231,7 @@ stamps `data-theme` before first paint and must load synchronously in `<head>`
 before any stylesheet. Every public site depends on that cookie name and scope,
 and a change fails silently and only in production.
 
-## Shared design system (0.7.0)
+## Shared design system (0.8.1)
 
 `public/design-system/` is a generated snapshot of `@doshi-experiments/design-system`.
 Its `release.json` records the version and a SHA-256 hash per file, and CI re-checks
