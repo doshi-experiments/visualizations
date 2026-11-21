@@ -246,3 +246,7 @@ wells are pressed in, and dividers are stitched. The selected tab, primary butto
 the progress bar use `--ds-action-gradient`; sliders and toggles take the solid
 `--ds-action-primary` through `accent-color`; links use `--ds-action-link`. Canvas
 labels draw in Host Grotesk. Exhibit colours chosen by visitors remain their own.
+
+## Licence
+
+MIT, see [LICENSE](LICENSE). Bundled third-party files keep their own licences. Matter.js 0.20.0 (`public/vendor/matter.min.js`, by Liam Brummitt) and perfect-freehand 1.2.2 (`public/vendor/perfect-freehand.mjs`, by Steve Ruiz) are both MIT. The Host Grotesk font files in `public/design-system/fonts/` are under the SIL Open Font License 1.1 (`host-grotesk-OFL.txt` beside them).
