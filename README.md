@@ -133,8 +133,8 @@ frame governor steps the GL resolution down before it starts dropping trails.
 
 ## Adding an exhibit
 
-Write one module in `public/js/` that default-exports the contract documented at
-the top of `shell.js`, then add it to the array in `public/js/boot.js`. That is the
+Write one module in `src/js/` that default-exports the contract documented at
+the top of `shell.js`, then add it to the array in `src/js/boot.js`. That is the
 whole content model — the tab strip, the number-key shortcuts, the control panel,
 the title-block telemetry and the chart all derive from it.
 
@@ -149,8 +149,11 @@ Controls are declarative; the shell renders them:
 ## Layout
 
 ```
-public/
-  index.html            sheet chrome, tokens, control-panel styles
+index.html              the sheet's markup
+src/
+  main.js               entry: styles, the theme-color hook, boot.js
+  site.css              Tailwind CSS v4, Felt's theme, then the layers below
+  exhibit.css           tabs, panels, title block, chart and control styles
   js/
     boot.js             the exhibit list; mounts the shell
     shell.js            registry, router, control kit, the one rAF loop
@@ -165,15 +168,18 @@ public/
     divergence.js       E-03.3
     harmonograph.js     E-03.4
   vendor/
-    matter.min.js       0.20.0
-    perfect-freehand.mjs 1.2.2
+    perfect-freehand.mjs 1.2.2, bundled into the modules
+public/
+  vendor/
+    matter.min.js       0.20.0, a classic script shipped byte for byte
 ```
 
 ## Dependencies
 
-Two, both vendored into `public/vendor/` and pinned rather than pulled from a CDN
-— no third-party request at runtime, works offline, and the deploy stays a plain
-asset upload.
+Two, both vendored and pinned rather than pulled from a CDN — no third-party
+request at runtime, and it works offline. Matter.js is a classic script in
+`public/vendor/`, which Vite copies byte for byte; perfect-freehand is an ES module
+in `src/vendor/`, which Vite bundles with the exhibits.
 
 - **Matter.js** in the Growth Cage, for its grid broad phase and its
   `collisionStart` event, which *is* the spawn rule.
@@ -207,40 +213,43 @@ paints its own paper, drafting grid included.
 ## Develop
 
 ```sh
-npx wrangler dev
+npm ci
+npm run dev          # live preview
+npm run build        # dist/; npm run preview serves it, as does npx wrangler dev
 ```
-
-Native ES modules need a server; `file://` will not work.
 
 Append `?debug` to the hash (`/#growth?debug`) to expose `window.__e03`, which
 gives the active exhibit, `debug()` for its internal state — including the worst
 containment violation across every ball — and `step(ms)` to advance the simulation
-by an exact amount of simulated time. Equal wall-clock is not equal sim time, so
+by an exact amount of simulated time. `safeRect(w, h)` returns the drawing area
+clear of the panels, which the design system's browser check aims at. Equal wall-clock is not equal sim time, so
 `step()` is the only way to check that a seed reproduces a run.
 
 ## Deploy
 
-Connected to Cloudflare and deployed on push to `main`. There is no build step:
-`public/` is uploaded as-is.
+Cloudflare Workers Builds deploys pushes to `main`: the build command is
+`npm run build`, and `wrangler.jsonc` declares `dist/` as the asset directory.
 
 ## The shared theme cookie
 
 The Appearance control writes a `sheet-theme` cookie scoped to `.rishabhdoshi.com`,
-so the choice follows you across the public subdomains. `public/design-system/prepaint.js`
-stamps `data-theme` before first paint and must load synchronously in `<head>`
-before any stylesheet. Every public site depends on that cookie name and scope,
+so the choice follows you across the public subdomains. `prepaint.js` stamps
+`data-theme` before first paint and must run synchronously in `<head>` before any
+stylesheet: the design system's Vite plugin inlines it straight after `<meta charset>`. Every public site depends on that cookie name and scope,
 and a change fails silently and only in production.
 
-## Shared design system (0.8.1)
+## Shared design system (0.10.1)
 
-`public/design-system/` is a generated snapshot of `@doshi-experiments/design-system`.
-Its `release.json` records the version and a SHA-256 hash per file, and CI re-checks
-them, so never edit these files here. Upgrade through the design-system repository's
-central `npm run rollout` command.
+`@doshi-experiments/design-system` is installed from the committed release tarball,
+which `npm ci` checks against the lockfile. Never edit it here; upgrade through the
+design-system repository's central `npm run rollout` command. Styles build with
+Tailwind CSS v4: `src/site.css` imports Felt's theme, then puts `exhibit.css`,
+`legacy.css` and the shared `components.css` in the components layer, in the order
+they always loaded, so utilities override them.
 
 The sheet wears the shared Felt identity: Host Grotesk, warm grey wool in light and
 charcoal in dark, a fibre texture, and the signal, a raspberry-to-brick gradient under
-white text. The page's own styles live in `public/index.html`. Exhibit tabs and control
+white text. The page's own styles live in `src/exhibit.css`. Exhibit tabs and control
 buttons are raised pills, panels are raised felt without outlines, selects and colour
 wells are pressed in, and dividers are stitched. The selected tab, primary buttons and
 the progress bar use `--ds-action-gradient`; sliders and toggles take the solid
@@ -249,4 +258,4 @@ labels draw in Host Grotesk. Exhibit colours chosen by visitors remain their own
 
 ## Licence
 
-MIT, see [LICENSE](LICENSE). Bundled third-party files keep their own licences. Matter.js 0.20.0 (`public/vendor/matter.min.js`, by Liam Brummitt) and perfect-freehand 1.2.2 (`public/vendor/perfect-freehand.mjs`, by Steve Ruiz) are both MIT. The Host Grotesk font files in `public/design-system/fonts/` are under the SIL Open Font License 1.1 (`host-grotesk-OFL.txt` beside them).
+MIT, see [LICENSE](LICENSE). Bundled third-party files keep their own licences. Matter.js 0.20.0 (`public/vendor/matter.min.js`, by Liam Brummitt) and perfect-freehand 1.2.2 (`src/vendor/perfect-freehand.mjs`, by Steve Ruiz) are both MIT. The Host Grotesk font files, which the build copies from the design-system tarball, are under the SIL Open Font License 1.1 (shipped as `fonts/host-grotesk-OFL.txt`).

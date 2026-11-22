@@ -1,11 +1,11 @@
 {
   // Cloudflare Worker serving only static assets — no server code.
-  // There is no build step; `public/` is uploaded as-is.
+  // `npm run build` (Vite) writes dist/, and Wrangler uploads it.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "visualizations",
   "compatibility_date": "2026-08-01",
   "assets": {
-    "directory": "./public",
+    "directory": "./dist",
     "not_found_handling": "single-page-application"
   }
 }

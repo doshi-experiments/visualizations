@@ -1,0 +1,10 @@
+/* The page's stylesheet: Tailwind CSS v4 with Felt's theme. The exhibit chrome, the legacy
+   variable names the canvas inks read and the shared components sit in the components
+   layer, in their original order, so utilities override them. */
+@import "tailwindcss" source(none);
+@source "../index.html";
+@source "./js";
+@import "@doshi-experiments/design-system/tailwind.css";
+@import "./exhibit.css" layer(components);
+@import "../node_modules/@doshi-experiments/design-system/dist/legacy.css" layer(components);
+@import "@doshi-experiments/design-system/components.css" layer(components);

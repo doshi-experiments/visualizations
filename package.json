@@ -1,0 +1,16 @@
+{
+  "name": "visualizations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@doshi-experiments/design-system": "file:doshi-experiments-design-system-0.10.1.tgz",
+    "@tailwindcss/vite": "4.3.5",
+    "tailwindcss": "4.3.5",
+    "vite": "8.3.6"
+  }
+}

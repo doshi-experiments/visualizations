@@ -7,7 +7,7 @@
    chart canvas, the single rAF loop, and the theme.
    ═══════════════════════════════════════════════════════════════ */
 'use strict';
-import {mountSiteHeader} from '../design-system/site.js';
+import {mountSiteHeader} from '@doshi-experiments/design-system/site';
 
 export const $ = s => document.querySelector(s);
 export const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -516,7 +516,10 @@ export function boot(list) {
       running: () => running,
       setRunning,
       debug: () => (active && active.debug ? active.debug() : null),
-      step: ms => (active && active.debugStep ? active.debugStep(ms) : null)
+      step: ms => (active && active.debugStep ? active.debugStep(ms) : null),
+      // The browser check aims its pointer inside the safe drawing area. The modules are
+      // bundled, so it can no longer import shell.js to ask.
+      safeRect
     };
   }
 
