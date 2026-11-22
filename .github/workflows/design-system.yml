@@ -7,12 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify shared release integrity
-        run: |
-          python3 - <<'PYTHON'
-          import hashlib, json, pathlib
-          root = pathlib.Path("public/design-system")
-          release = json.loads((root / "release.json").read_text())
-          for name, expected in release["files"].items():
-              assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
-          PYTHON
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      # npm ci checks the design-system tarball against the lockfile's integrity hash.
+      - run: npm ci
+      - run: npm run build

@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Sheet E-03 at visualizations.rishabhdoshi.com: four canvas/WebGL physics exhibits (Growth Cage, Silk, Divergence, Harmonograph). Static ES modules in `public/`, no build step; Cloudflare uploads `public/` as-is on push to `main`. `README.md` explains each exhibit's physics and the easy-to-get-wrong parts. Author commits as `doshi-experiments <311927837+doshi-experiments@users.noreply.github.com>`.
+Sheet E-03 at visualizations.rishabhdoshi.com: four canvas/WebGL physics exhibits (Growth Cage, Silk, Divergence, Harmonograph). ES modules in `src/js/`, built with Vite and Tailwind CSS v4 into `dist/`, which Cloudflare deploys on push to `main`. `README.md` explains each exhibit's physics and the easy-to-get-wrong parts. Author commits as `doshi-experiments <311927837+doshi-experiments@users.noreply.github.com>`.
 
 ## Never publish PII or sensitive information
 
@@ -22,20 +22,22 @@ Use synthetic fixtures instead. Before every commit and push, check the staged d
 ## Commands
 
 ```sh
-npx wrangler dev                  # or: python3 -m http.server --directory public
+npm ci
+npm run dev                       # live preview
+npm run build                     # dist/; npx wrangler dev serves it
 ```
 
-Open `/#growth?debug` (any exhibit id: `growth`, `silk`, `chaos`, `harmonograph`) to expose `window.__e03`. Use `step(ms)` for reproducible checks; equal wall-clock is not equal simulated time. CI re-verifies `public/design-system/release.json`; the design-system repository's `check-visualizations.mjs` drives every exhibit in a browser.
+Open `/#growth?debug` (any exhibit id: `growth`, `silk`, `chaos`, `harmonograph`) to expose `window.__e03`. Use `step(ms)` for reproducible checks; equal wall-clock is not equal simulated time. `window.__e03.safeRect(w, h)` gives the drawing area clear of the panels. CI runs `npm ci` (which checks the design-system tarball against the lockfile) and the build; the design-system repository's `check-visualizations.mjs` drives every exhibit in a browser.
 
 ## Architecture
 
-- `public/js/shell.js` documents the exhibit contract at its top. To add an exhibit, write one module in `public/js/` that default-exports that contract and register it in `public/js/boot.js`. Tabs, controls, telemetry and the chart all derive from the contract.
-- `public/index.html` holds the page's styles: Felt pills for tabs and buttons, raised panels, pressed-in selects, stitched dividers.
-- Dependencies (Matter.js, perfect-freehand) are vendored and pinned in `public/vendor/`; never load from a CDN.
+- `src/js/shell.js` documents the exhibit contract at its top. To add an exhibit, write one module in `src/js/` that default-exports that contract and register it in `src/js/boot.js`. Tabs, controls, telemetry and the chart all derive from the contract.
+- `src/exhibit.css` holds the exhibit chrome (Felt pills for tabs and buttons, raised panels, pressed-in selects, stitched dividers), mostly for elements `shell.js` builds. `src/site.css` loads Tailwind and Felt's theme, then `exhibit.css`, `legacy.css` and `components.css` in the components layer, in that order. New markup uses Felt's utilities. Keep the `exhibit-bar` class and the `stage`, `panel` and `titleblock` ids: `shell.js` and the design system's check read them.
+- Dependencies are vendored and pinned, never loaded from a CDN: Matter.js is a classic script in `public/vendor/` (copied byte for byte), perfect-freehand an ES module in `src/vendor/` (bundled).
 
 ## Invariants that are easy to break
 
 - Divergence and Harmonograph use custom RK4 on purpose, not a physics engine.
 - Measure before asserting physics results: the Growth Cage's growth exponent measures below 1, not the N² most people predict.
 - Selected tabs, primary buttons and the progress bar use `--ds-action-gradient` with `--ds-action-text`; sliders and toggles use solid `--ds-action-primary` via `accent-color`; text in the signal colour uses `--ds-action-link`. Canvas labels draw in Host Grotesk.
-- Never edit `public/design-system/`; upgrade through the design-system repository's central rollout. `prepaint.js` must load before styles, and the `sheet-theme` cookie name and scope must not change.
+- Never edit the design-system tarball; upgrade through the design-system repository's central rollout. `prepaint.js` must run before styles (the Vite plugin inlines it after `<meta charset>`), and the `sheet-theme` cookie name and scope must not change.

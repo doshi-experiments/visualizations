@@ -1,0 +1,95 @@
+<!doctype html>
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  SHEET E-03 — VISUALIZATIONS
+
+  Four exhibits on one sheet, sharing a shell:
+
+    E-03.1  Growth Cage — balls in a cage, every collision spawns
+            another. Collision rate goes as N², so the obvious
+            prediction is a finite-time blow-up. It measures out below
+            N¹ instead: the balls cool as they multiply, and newborns
+            run out of room. The chart exists to show that break.
+
+    E-03.2  Silk — k-fold symmetric drawing. The strands fan apart
+            when you move fast and bunch when you move slowly, which
+            is the whole trick.
+
+    E-03.3  Divergence — 120 double pendulums a billionth of a radian
+            apart, staying together, then not.
+
+    E-03.4  Harmonograph — the same pendulums, hung off your cursor
+            and used as a brush. A dragged pivot is a non-inertial
+            frame, so it is your acceleration that swings them, not
+            your speed.
+
+  Adding an exhibit is one module in src/js/ plus one line in the
+  registry in src/js/boot.js. That is the whole content model.
+
+  Sheet E-03 · Companion to A-001 and A-002 · Rishabh Doshi
+  hello@rishabhdoshi.com
+  ═══════════════════════════════════════════════════════════════════
+-->
+<html lang="en" data-project="visualizations" data-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visualizations — Rishabh Doshi</title>
+<meta name="description" content="Four interactive experiments in growth, symmetry, and chaos.">
+<meta name="color-scheme" content="dark light">
+<!-- Theme is stamped on <html> before the first paint. Anything later
+     and the light-mode visitor gets a dark flash on every load.
+     The choice lives in a cookie scoped to .rishabhdoshi.com so it
+     carries across the portfolio, the experiments index and the
+     calculator — localStorage can't, being per-origin. -->
+<!-- The design system's Vite plugin inlines prepaint.js straight after <meta charset>. -->
+<script type="module" src="/src/main.js"></script>
+</head>
+<body>
+<a class="ds-skip" href="#panel">Skip to controls</a>
+
+<div id="family-header"></div>
+<div class="exhibit-bar">
+  <h1 id="exhibitTitle">Growth Cage</h1>
+  <nav id="tabs" role="tablist" aria-label="Exhibits"></nav>
+</div>
+
+<main id="stage" role="img" aria-label="Interactive visualization"></main>
+
+<aside id="panel" tabindex="-1" data-open="true">
+  <div class="phead">
+    <span>Controls</span>
+    <button id="panelToggle" aria-expanded="true" aria-controls="panelBody"
+            >Hide</button>
+  </div>
+  <div class="pbody" id="panelBody"></div>
+</aside>
+
+<div id="titleblock">
+  <div id="tbRows"></div>
+  <div id="bar" role="presentation"><div id="barFill"></div></div>
+  <div id="tbNote" hidden></div>
+</div>
+
+<div id="chartwrap" hidden>
+  <div class="chead"><span id="chartTitle">Population</span><span id="chartScale">log N</span></div>
+  <canvas id="chart" width="400" height="208"></canvas>
+  <div id="chartFoot"></div>
+</div>
+
+<div id="hint" hidden></div>
+<div id="live" role="status" aria-live="polite"></div>
+
+<noscript><section style="position:fixed;inset:0;z-index:30;overflow:auto;padding:32px;background:var(--ds-surface-page)">
+<h1>Visualizations</h1><p>Enable JavaScript to explore growth, symmetry, and chaos.</p>
+<p><a href="https://rishabhdoshi.com/">Home</a> <a href="https://experiments.rishabhdoshi.com/">Experiments</a></p>
+</section></noscript>
+
+<!-- Matter.js supplies the grid broad phase and the collisionStart event that the
+     Growth Cage's spawn rule hangs off. Vendored and pinned rather than pulled
+     from a CDN: no third-party request, and it works offline.
+     A classic script, served byte for byte from public/vendor/, so it has run before
+     the deferred module in <head>. -->
+<script src="/vendor/matter.min.js"></script>
+</body>
+</html>
