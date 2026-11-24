@@ -14,9 +14,13 @@ button{cursor:pointer}
 #family-header{position:fixed;inset:0 0 auto;z-index:20;background:var(--ds-surface-page)}
 .exhibit-bar{position:fixed;top:var(--viz-header-height,76px);left:24px;right:24px;z-index:10;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:8px 0 12px;background:var(--ds-surface-page)}
 #exhibitTitle{font:500 1.9375rem/1.15 var(--ds-font-display);font-variation-settings:var(--ds-font-display-variation);letter-spacing:-.035em}
-#tabs{display:flex;gap:8px;flex-wrap:wrap}
-#tabs button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border:0;border-radius:var(--ds-radius-pill);background:var(--ds-surface-raised);box-shadow:var(--ds-shadow-raised);color:var(--ds-text-secondary);font-size:.875rem;font-weight:600}
-#tabs button[aria-selected="true"]{color:var(--ds-action-text);background:var(--ds-action-gradient)}
+/* Exhibit tabs are local navigation, so they are underlined in the signal-text colour, as the
+   shared .ds-tab draws them, not filled pills. */
+#tabs{display:flex;flex-wrap:wrap;gap:0 24px;border-bottom:1.5px dashed var(--ds-stitch)}
+#tabs button{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:transparent;color:var(--ds-text-secondary);font:600 .875rem/1 var(--ds-font-body);white-space:nowrap}
+#tabs button:hover,#tabs button[aria-selected="true"]{color:var(--ds-text)}
+#tabs button[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;border-radius:2px;background:var(--ds-action-link)}
+#tabs button:focus-visible{outline-offset:2px;border-radius:6px}
 #stage{position:fixed;inset:0;z-index:1}
 #stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;touch-action:none}
 #stage.grab{cursor:crosshair}
@@ -41,7 +45,10 @@ button{cursor:pointer}
 .btn{min-height:44px;padding:8px 16px;border:0;border-radius:var(--ds-radius-pill);background:var(--ds-surface-raised);box-shadow:var(--ds-shadow-raised);color:var(--ds-text);font-size:.875rem;font-weight:600;white-space:nowrap;flex:1}
 .btn:active{box-shadow:var(--ds-shadow-pressed);transform:translateY(1px)}
 .btn:hover{background:var(--ds-surface-overlay)}
-.btn.danger{color:var(--ds-error-text);box-shadow:var(--ds-shadow-raised),inset 0 0 0 1.5px var(--ds-error-text)}
+/* Error red always comes with its tint: the shared danger button's colours. */
+.btn.danger{color:var(--ds-error-text);background:var(--ds-error-bg);box-shadow:inset 0 0 0 1px var(--ds-error-text)}
+.btn.danger:hover{background:var(--ds-selection)}
+.btn.danger:active{box-shadow:var(--ds-shadow-pressed),inset 0 0 0 1px var(--ds-error-text)}
 .btn.primary{color:var(--ds-action-text);background:var(--ds-action-gradient)}
 .btn.primary:hover{background:var(--ds-action-gradient-hover)}
 #titleblock{position:fixed;top:var(--viz-panel-top,156px);right:24px;width:224px;z-index:5;border:0;border-radius:var(--ds-radius-container);background:var(--ds-surface-raised);box-shadow:var(--ds-shadow-raised);padding:12px 16px;font-size:.875rem}
@@ -61,8 +68,7 @@ button{cursor:pointer}
 @media(max-width:920px){
  .exhibit-bar{left:16px;right:16px;gap:8px}
  #exhibitTitle{font-size:1.25rem}
- #tabs{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
- #tabs button{padding:8px 6px;font-size:.875rem;white-space:normal;min-width:0}
+ #tabs{width:100%;gap:0 20px}
  #titleblock{left:16px;right:16px;width:auto;max-height:140px;overflow-y:auto;padding:10px 12px}
  #tbRows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
  #titleblock .row{padding:2px 0;font-size:.8125rem}
@@ -72,5 +78,4 @@ button{cursor:pointer}
  #hint{left:16px;right:16px;transform:none;max-width:none;bottom:88px;font-size:.8125rem;padding:8px 12px}
  #panel[data-open="true"] ~ #hint{display:none}
 }
-@media(max-width:640px){#tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
