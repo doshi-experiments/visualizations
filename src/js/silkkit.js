@@ -104,6 +104,6 @@ export function withSymmetry(g, frame, k, mirror, fn) {
 /* Drawing layers stay opaque so additive and multiply blending have
    a stable shared surface beneath the ink. Backgrounds carry no decoration. */
 export function paintPaper(g, w, h) {
-  g.fillStyle = ink('paper-0');
+  g.fillStyle = ink('--ds-surface-page');
   g.fillRect(0, 0, w, h);
 }

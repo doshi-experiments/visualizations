@@ -119,7 +119,7 @@ function colorAt(stroke, p) {
     }
     case 'speed': return [clamp(200 - p[2] * 90, 0, 360), 92, 63];
     case 'blueprint': {
-      const inks = [197, 27, 145, 6];       // accent, safety, go, redline
+      const inks = [197, 27, 145, 6];       // signal, crane, success, error hues
       return [inks[Math.floor(p[3] / 900) % inks.length], 92, 63];
     }
     default: return [(stroke.hue + stroke.hueRate * p[3]) % 360, 92, 63];
@@ -614,7 +614,7 @@ function drawGuides(g, fade) {
   const k = Math.max(1, state.k | 0);
   g.save();
   g.globalAlpha = clamp(fade, 0, 1) * 0.5;
-  g.strokeStyle = ink('accent');
+  g.strokeStyle = ink('--ds-action-primary');
   g.setLineDash([3, 5]);
   g.lineWidth = 1;
   const r = Math.hypot(W, H);

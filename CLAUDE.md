@@ -32,7 +32,7 @@ Open `/#growth?debug` (any exhibit id: `growth`, `silk`, `chaos`, `harmonograph`
 ## Architecture
 
 - `src/js/shell.js` documents the exhibit contract at its top. To add an exhibit, write one module in `src/js/` that default-exports that contract and register it in `src/js/boot.js`. Tabs, controls, telemetry and the chart all derive from the contract.
-- `src/exhibit.css` holds the exhibit chrome (Felt pills for tabs and buttons, raised panels, pressed-in selects, stitched dividers), mostly for elements `shell.js` builds. `src/site.css` loads Tailwind and Felt's theme, then `exhibit.css`, `legacy.css` and `components.css` in the components layer, in that order. New markup uses Felt's utilities. Keep the `exhibit-bar` class and the `stage`, `panel` and `titleblock` ids: `shell.js` and the design system's check read them.
+- `src/exhibit.css` holds the exhibit chrome (Felt pills for tabs and buttons, raised panels, pressed-in selects, stitched dividers), mostly for elements `shell.js` builds. `src/site.css` loads Tailwind and Felt's theme, then `exhibit.css` in the components layer; nothing comes from `legacy.css` or `components.css`. Canvas code reads colours with `ink('--ds-…')` (Felt's tokens) or the exhibit's own `ink('cage')` and `ink('line-2')`. New markup uses Felt's utilities. Keep the `exhibit-bar` class and the `stage`, `panel` and `titleblock` ids: `shell.js` and the design system's check read them.
 - Dependencies are vendored and pinned, never loaded from a CDN: Matter.js is a classic script in `public/vendor/` (copied byte for byte), perfect-freehand an ES module in `src/vendor/` (bundled).
 
 ## Invariants that are easy to break

@@ -342,7 +342,7 @@ function draw() {
       t.strokeStyle = `hsl(${(b * (360 / HB)).toFixed(0)} 88% ${light ? 44 : 64}%)`;
       t.stroke(paths[b]);
     }
-    if (mono) { t.strokeStyle = ink('accent'); t.stroke(mono); }
+    if (mono) { t.strokeStyle = ink('--ds-action-primary'); t.stroke(mono); }
     t.globalAlpha = 1;
   } else {
     trails.fade(1);
@@ -353,7 +353,7 @@ function draw() {
   g.clearRect(0, 0, W, H);
 
   g.save();
-  g.fillStyle = ink('ink-dim');
+  g.fillStyle = ink('--ds-text-secondary');
   g.beginPath(); g.arc(px, py, 3, 0, TAU); g.fill();
 
   if (state.rods || state.bobs) {
@@ -389,13 +389,13 @@ function draw() {
       const col = `hsl(${(b * (360 / HB)).toFixed(0)} 88% ${light ? 42 : 66}%)`;
       if (rods[b]) { g.strokeStyle = col; g.stroke(rods[b]); }
     }
-    if (monoRod) { g.strokeStyle = ink('accent'); g.stroke(monoRod); }
+    if (monoRod) { g.strokeStyle = ink('--ds-action-primary'); g.stroke(monoRod); }
     g.globalAlpha = 1;
     for (let b = 0; b < HB; b++) {
       const col = `hsl(${(b * (360 / HB)).toFixed(0)} 88% ${light ? 42 : 66}%)`;
       if (bobs[b]) { g.fillStyle = col; g.fill(bobs[b]); }
     }
-    if (monoBob) { g.fillStyle = ink('accent'); g.fill(monoBob); }
+    if (monoBob) { g.fillStyle = ink('--ds-action-primary'); g.fill(monoBob); }
   }
   g.restore();
 }
@@ -403,7 +403,7 @@ function draw() {
 function chart(g, w, h) {
   const pad = { l: 24, r: 4, t: 5, b: 13 };
   const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
-  const dim = ink('ink-dim'), line = ink('line-2');
+  const dim = ink('--ds-text-secondary'), line = ink('line-2');
 
   g.save();
   g.strokeStyle = line; g.lineWidth = 1;
@@ -436,7 +436,7 @@ function chart(g, w, h) {
     const first = samples.find(s => s.d > Math.pow(10, state.epsExp) * 20);
     if (first) {
       const a = Math.log(first.d) - lambda * first.t;
-      g.strokeStyle = ink('safety'); g.setLineDash([3, 3]); g.globalAlpha = 0.8;
+      g.strokeStyle = ink('--ds-crane'); g.setLineDash([3, 3]); g.globalAlpha = 0.8;
       g.beginPath();
       g.moveTo(X(0), Y(Math.exp(a)));
       g.lineTo(X(tMax), Y(Math.exp(a + lambda * tMax)));
@@ -445,7 +445,7 @@ function chart(g, w, h) {
     }
   }
 
-  g.strokeStyle = ink('accent'); g.lineWidth = 1.5;
+  g.strokeStyle = ink('--ds-action-primary'); g.lineWidth = 1.5;
   g.beginPath();
   samples.forEach((s, i) => i ? g.lineTo(X(s.t), Y(s.d)) : g.moveTo(X(s.t), Y(s.d)));
   g.stroke();
