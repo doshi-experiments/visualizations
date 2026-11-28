@@ -233,7 +233,7 @@ function repaper() {
   paintPaper(g, W, H, { grid: fadeAmount() === 0 });
   // Remembered because reink() needs to know what colour the paper
   // *was*, and by the time it runs the theme has already moved on.
-  sheetPaper = ink('paper-0');
+  sheetPaper = ink('--ds-surface-page');
 }
 
 /* Ageing an *opaque* layer cannot use destination-out — that would
@@ -248,7 +248,7 @@ function ageSheet() {
   g.save();
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.globalAlpha = a;
-  g.fillStyle = ink('paper-0');
+  g.fillStyle = ink('--ds-surface-page');
   g.fillRect(0, 0, paint.canvas.width, paint.canvas.height);
   g.restore();
 }
@@ -382,7 +382,7 @@ function drawSprite() {
   if (showGuides) {
     g.save();
     g.globalAlpha = clamp((guideUntil - now) / 900, 0, 1) * 0.5;
-    g.strokeStyle = ink('accent');
+    g.strokeStyle = ink('--ds-action-primary');
     g.setLineDash([3, 5]);
     g.lineWidth = 1;
     const r = Math.hypot(W, H);
@@ -435,7 +435,7 @@ function drawSprite() {
       if (state.bobs) gg.fill(bobs[b]);
     }
     if (state.pivot) {
-      gg.strokeStyle = ink('ink-dim');
+      gg.strokeStyle = ink('--ds-text-secondary');
       gg.lineWidth = 1;
       gg.beginPath();
       gg.moveTo(pvx - 7, pvy); gg.lineTo(pvx + 7, pvy);
@@ -556,8 +556,8 @@ function reink() {
 
   // Where the old paper lands once flipped, versus where the new
   // paper actually is.
-  const was = sample(sheetPaper || ink('paper-0'), FLIP);
-  const want = sample(ink('paper-0'), null);
+  const was = sample(sheetPaper || ink('--ds-surface-page'), FLIP);
+  const want = sample(ink('--ds-surface-page'), null);
   const delta = [Math.round(want[0] - was[0]),
                  Math.round(want[1] - was[1]),
                  Math.round(want[2] - was[2])];
@@ -569,7 +569,7 @@ function reink() {
   for (const snap of undoStack)
     invertInto(snap.canvas.getContext('2d'), snap.canvas,
                snap.canvas.width, snap.canvas.height, delta);
-  sheetPaper = ink('paper-0');
+  sheetPaper = ink('--ds-surface-page');
 }
 
 /* Export is the paint layer at its own device resolution — on a

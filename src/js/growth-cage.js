@@ -1007,7 +1007,7 @@ const paperPixel = document.createElement('canvas');
 paperPixel.width = paperPixel.height = 1;
 const paperContext = paperPixel.getContext('2d', {willReadFrequently: true});
 function paperRGB() {
-  const color = ink('paper-0');
+  const color = ink('--ds-surface-page');
   if (!paperSamples.has(color)) {
     paperContext.fillStyle = color;
     paperContext.fillRect(0, 0, 1, 1);
@@ -1099,7 +1099,7 @@ function draw() {
       for (const b of balls) {
         const v = b.viz;
         const hue = hueOf(b);
-        t.strokeStyle = hue < 0 ? ink('accent') : `hsl(${hue.toFixed(0)} 85% ${light ? 42 : 62}%)`;
+        t.strokeStyle = hue < 0 ? ink('--ds-action-primary') : `hsl(${hue.toFixed(0)} 85% ${light ? 42 : 62}%)`;
         t.lineWidth = Math.max(1, b.circleRadius * 0.7);
         t.beginPath();
         t.moveTo(v.px, v.py);
@@ -1139,7 +1139,7 @@ function draw() {
     g.fillStyle = `hsl(${(i * (360 / B) + 360 / B / 2).toFixed(0)} 88% ${light ? 46 : 66}%)`;
     g.fill(paths[i]);
   }
-  if (mono) { g.fillStyle = ink('accent'); g.fill(mono); }
+  if (mono) { g.fillStyle = ink('--ds-action-primary'); g.fill(mono); }
 
   /* ── the drop crosshair, live for every drop ── */
   drawDropUI(g);
@@ -1151,8 +1151,8 @@ function drawDropUI(g) {
   if (depth(x, y) < state.radius) return;
 
   g.save();
-  g.strokeStyle = ink('accent');
-  g.fillStyle = ink('accent');
+  g.strokeStyle = ink('--ds-action-primary');
+  g.fillStyle = ink('--ds-action-primary');
   g.lineWidth = 1;
   g.beginPath();
   g.moveTo(x - 11, y); g.lineTo(x + 11, y);
@@ -1181,7 +1181,7 @@ function drawDropUI(g) {
 function chart(g, w, h) {
   const pad = { l: 22, r: 4, t: 5, b: 13 };
   const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
-  const dim = ink('ink-dim'), line = ink('line-2');
+  const dim = ink('--ds-text-secondary'), line = ink('line-2');
 
   g.save();
   g.strokeStyle = line; g.lineWidth = 1;
@@ -1244,13 +1244,13 @@ function chart(g, w, h) {
       g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
     };
-    drawFit(t => Math.exp(f.exp.a + f.exp.b * t), ink('safety'));
-    drawFit(t => 1 / (f.hyp.a + f.hyp.b * t), ink('go'));
+    drawFit(t => Math.exp(f.exp.a + f.exp.b * t), ink('--ds-crane'));
+    drawFit(t => 1 / (f.hyp.a + f.hyp.b * t), ink('--ds-success-text'));
 
     if (isFinite(f.tStar) && f.tStar > 0 && f.tStar < tMax * 3.5) {
       const x = X(f.tStar);
       if (x < pad.l + iw) {
-        g.strokeStyle = ink('redline'); g.setLineDash([2, 3]);
+        g.strokeStyle = ink('--ds-error-text'); g.setLineDash([2, 3]);
         g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, pad.t + ih); g.stroke();
         g.setLineDash([]);
       }
@@ -1258,7 +1258,7 @@ function chart(g, w, h) {
   }
 
   // the data
-  g.strokeStyle = ink('accent'); g.lineWidth = 1.5;
+  g.strokeStyle = ink('--ds-action-primary'); g.lineWidth = 1.5;
   g.beginPath();
   samples.forEach((s, i) => i ? g.lineTo(X(s.t), Y(s.n)) : g.moveTo(X(s.t), Y(s.n)));
   g.stroke();

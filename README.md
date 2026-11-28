@@ -238,14 +238,15 @@ so the choice follows you across the public subdomains. `prepaint.js` stamps
 stylesheet: the design system's Vite plugin inlines it straight after `<meta charset>`. Every public site depends on that cookie name and scope,
 and a change fails silently and only in production.
 
-## Shared design system (0.10.1)
+## Shared design system (0.14.0)
 
 `@doshi-experiments/design-system` is installed from the committed release tarball,
 which `npm ci` checks against the lockfile. Never edit it here; upgrade through the
 design-system repository's central `npm run rollout` command. Styles build with
-Tailwind CSS v4: `src/site.css` imports Felt's theme, then puts `exhibit.css`,
-`legacy.css` and the shared `components.css` in the components layer, in the order
-they always loaded, so utilities override them.
+Tailwind CSS v4: `src/site.css` imports Felt's theme, then puts `exhibit.css` in the
+components layer, so utilities override it. Nothing comes from `legacy.css` or
+`components.css`: the canvases read Felt's tokens through `ink('--ds-…')`, the shared
+header draws with utilities, and the body's felt is the `fibre` utility.
 
 The sheet wears the shared Felt identity: Host Grotesk, warm grey wool in light and
 charcoal in dark, a fibre texture, and the signal, a raspberry-to-brick gradient under

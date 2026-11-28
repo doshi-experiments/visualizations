@@ -18,15 +18,17 @@ export const reducedMotion =
   matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ── theme inks ──────────────────────────────────────────────────
-   Canvas can't read CSS variables, so it asks for them here. The
-   lookup is cached because getComputedStyle is a layout read and
-   these are hit once per shape per frame otherwise. */
+   Canvas can't read CSS variables, so it asks for them here: a full
+   custom-property name ('--ds-action-primary') or one of the exhibit's
+   own without its dashes ('cage'). The lookup is cached because
+   getComputedStyle is a layout read and these are hit once per shape
+   per frame otherwise. */
 const inkCache = new Map();
 export function ink(name) {
   let v = inkCache.get(name);
   if (v === undefined) {
     v = getComputedStyle(document.documentElement)
-          .getPropertyValue('--' + name).trim();
+          .getPropertyValue(name.startsWith('--') ? name : '--' + name).trim();
     inkCache.set(name, v);
   }
   return v;
